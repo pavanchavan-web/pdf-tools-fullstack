@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://pdf-tools-fullstack.onrender.com/api";
 
 /**
  * 🔹 LEGACY SUPPORT (DO NOT REMOVE)
@@ -39,7 +39,7 @@ export async function getJobStatus(jobId) {
 
 export async function downloadResult(filePath) {
   const res = await fetch(
-    `http://localhost:5000/${filePath}`
+    `https://pdf-tools-fullstack.onrender.com/${filePath}`
   );
   if (!res.ok) throw new Error("Download failed");
   return await res.blob();
