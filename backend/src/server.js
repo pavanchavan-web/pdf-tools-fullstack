@@ -1,0 +1,285 @@
+import express from "express";
+import multer from "multer";
+import cors from "cors";
+import fs from "fs";
+import path from "path";
+import archiver from "archiver";
+import { exec } from "child_process";
+import { PDFDocument } from "pdf-lib";
+import sharp from "sharp";
+import { jobQueue } from "./queue.js";
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+/* ================= HEALTH ================= */
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+/* ================= MULTER ================= */
+const upload = multer({
+  dest: "uploads/",
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+});
+
+/* ================= MERGE PDF ================= */
+app.post("/api/merge", upload.array("files"), async (req, res) => {
+  try {
+    const pdfBytes = await jobQueue.add(async () => {
+      const mergedPdf = await PDFDocument.create();
+
+      for (const file of req.files) {
+        const bytes = fs.readFileSync(file.path);
+        const pdf = await PDFDocument.load(bytes);
+        const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+        pages.forEach(p => mergedPdf.addPage(p));
+        fs.unlinkSync(file.path);
+      }
+
+      return await mergedPdf.save();
+    });
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "attachment; filename=merged.pdf",
+    });
+    res.send(Buffer.from(pdfBytes));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Merge failed" });
+  }
+});
+
+/* ================= SPLIT PDF ================= */
+app.post("/api/split", upload.single("file"), async (req, res) => {
+  try {
+    const zipBuffer = await jobQueue.add(async () => {
+      const pdfBytes = fs.readFileSync(req.file.path);
+      const pdf = await PDFDocument.load(pdfBytes);
+
+      const zip = archiver("zip");
+      const chunks = [];
+
+      zip.on("data", d => chunks.push(d));
+
+      for (let i = 0; i < pdf.getPageCount(); i++) {
+        const newPdf = await PDFDocument.create();
+        const [page] = await newPdf.copyPages(pdf, [i]);
+        newPdf.addPage(page);
+        zip.append(Buffer.from(await newPdf.save()), {
+          name: `page-${i + 1}.pdf`,
+        });
+      }
+
+      await zip.finalize();
+      fs.unlinkSync(req.file.path);
+      return Buffer.concat(chunks);
+    });
+
+    res.set({
+      "Content-Type": "application/zip",
+      "Content-Disposition": "attachment; filename=split-pages.zip",
+    });
+    res.send(zipBuffer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Split failed" });
+  }
+});
+
+/* ================= COMPRESS PDF ================= */
+app.post("/api/compress", upload.single("file"), async (req, res) => {
+  const output = `compressed-${Date.now()}.pdf`;
+  const gsCmd =
+    process.platform === "win32"
+      ? `"C:\\Program Files\\gs\\gs10.06.0\\bin\\gswin64c.exe"`
+      : "gs";
+
+  try {
+    await jobQueue.add(
+      () =>
+        new Promise((resolve, reject) => {
+          exec(
+            `${gsCmd} -sDEVICE=pdfwrite -dPDFSETTINGS=/screen -dNOPAUSE -dBATCH -sOutputFile=${output} ${req.file.path}`,
+            err => (err ? reject(err) : resolve())
+          );
+        })
+    );
+
+    res.download(output, () => {
+      fs.unlinkSync(req.file.path);
+      fs.unlinkSync(output);
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Compression failed" });
+  }
+});
+
+/* ================= IMAGE → PDF ================= */
+app.post("/api/image-to-pdf", upload.array("files", 20), async (req, res) => {
+  try {
+    const pdfBytes = await jobQueue.add(async () => {
+      const pdfDoc = await PDFDocument.create();
+
+      for (const file of req.files) {
+        const bytes = fs.readFileSync(file.path);
+
+        const image =
+          file.mimetype.includes("png")
+            ? await pdfDoc.embedPng(bytes)
+            : await pdfDoc.embedJpg(bytes);
+
+        const page = pdfDoc.addPage([image.width, image.height]);
+        page.drawImage(image, { x: 0, y: 0 });
+        fs.unlinkSync(file.path);
+      }
+
+      return await pdfDoc.save();
+    });
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "attachment; filename=images.pdf",
+    });
+    res.send(Buffer.from(pdfBytes));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Image to PDF failed" });
+  }
+});
+
+/* ================= IMAGE CONVERT ================= */
+app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
+  try {
+    const formats = JSON.parse(req.body.formats);
+
+    const zipBuffer = await jobQueue.add(async () => {
+      const zip = archiver("zip");
+      const chunks = [];
+      zip.on("data", d => chunks.push(d));
+
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        const format = formats[i];
+        const base = path.parse(file.originalname).name;
+
+        let buffer;
+
+        if (format === "svg" || format === "bmp" || format === "gif" || format === "tiff") {
+          const out = `${file.path}.${format}`;
+          await new Promise((resolve, reject) => {
+            exec(`magick "${file.path}" "${out}"`, err =>
+              err ? reject(err) : resolve()
+            );
+          });
+          buffer = fs.readFileSync(out);
+          fs.unlinkSync(out);
+        } else {
+          buffer = await sharp(file.path).toFormat(format).toBuffer();
+        }
+
+        zip.append(buffer, { name: `${base}.${format}` });
+        fs.unlinkSync(file.path);
+      }
+
+      await zip.finalize();
+      return Buffer.concat(chunks);
+    });
+
+    res.set({
+      "Content-Type": "application/zip",
+      "Content-Disposition": "attachment; filename=converted-images.zip",
+    });
+    res.send(zipBuffer);
+  } catch (err) {
+    console.error("Image convert error:", err);
+    res.status(500).json({ error: "Image convert failed" });
+  }
+});
+
+/* ================= PDF IMAGE EXTRACT ================= */
+app.post("/api/pdf-image-extract", upload.single("file"), async (req, res) => {
+  const extractDir = `extract-${Date.now()}`;
+  fs.mkdirSync(extractDir);
+
+  try {
+    const zipBuffer = await jobQueue.add(
+      () =>
+        new Promise((resolve, reject) => {
+          exec(
+            `pdfimages -all "${req.file.path}" "${extractDir}/img"`,
+            err => {
+              if (err) return reject(err);
+
+              const zip = archiver("zip");
+              const chunks = [];
+              zip.on("data", d => chunks.push(d));
+
+              fs.readdirSync(extractDir).forEach(file => {
+                zip.file(`${extractDir}/${file}`, { name: file });
+              });
+
+              zip.finalize().then(() => {
+                fs.rmSync(extractDir, { recursive: true, force: true });
+                fs.unlinkSync(req.file.path);
+                resolve(Buffer.concat(chunks));
+              });
+            }
+          );
+        })
+    );
+
+    res.set({
+      "Content-Type": "application/zip",
+      "Content-Disposition": "attachment; filename=pdf-images.zip",
+    });
+    res.send(zipBuffer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Image extraction failed" });
+  }
+});
+
+/* ================= IMAGE COMPRESS ================= */
+app.post("/api/image-compress", upload.array("files", 20), async (req, res) => {
+  try {
+    const zipBuffer = await jobQueue.add(async () => {
+      const zip = archiver("zip");
+      const chunks = [];
+      zip.on("data", d => chunks.push(d));
+
+      for (const file of req.files) {
+        const buffer = await sharp(file.path)
+          .resize({ width: 2000, withoutEnlargement: true })
+          .webp({ quality: 75 })
+          .toBuffer();
+
+        zip.append(buffer, {
+          name: `${path.parse(file.originalname).name}-compressed.webp`,
+        });
+
+        fs.unlinkSync(file.path);
+      }
+
+      await zip.finalize();
+      return Buffer.concat(chunks);
+    });
+
+    res.set({
+      "Content-Type": "application/zip",
+      "Content-Disposition": "attachment; filename=compressed-images.zip",
+    });
+    res.send(zipBuffer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Image compression failed" });
+  }
+});
+
+/* ================= START ================= */
+app.listen(5000, () => {
+  console.log("✅ API running on http://localhost:5000");
+});
