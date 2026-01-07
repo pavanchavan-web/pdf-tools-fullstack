@@ -152,77 +152,76 @@ app.post("/api/image-to-pdf", upload.array("files", 20), async (req, res) => {
 });
 
 /* ================= IMAGE CONVERT ================= */
+/* ================= IMAGE CONVERT ================= */
 app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
   try {
     const formats = JSON.parse(req.body.formats);
 
-    const zipBuffer = await jobQueue.add(async () => {
-      const zip = archiver("zip", { zlib: { level: 9 } });
-      const chunks = [];
+    const zip = archiver("zip", { zlib: { level: 9 } });
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=converted-images.zip"
+    );
 
-      zip.on("data", chunk => chunks.push(chunk));
+    zip.pipe(res);
 
-      for (let i = 0; i < req.files.length; i++) {
-        const file = req.files[i];
-        const targetFormat = formats[i];
-        const base = path.parse(file.originalname).name;
+    for (let i = 0; i < req.files.length; i++) {
+      const file = req.files[i];
+      const targetFormat = formats[i];
+      const inputPath = file.path;
+      const base = path.parse(file.originalname).name;
+      const outputName = `${base}-${Date.now()}.${targetFormat}`;
 
-        const inputPath = file.path;
-        const outputName = `${base}-${Date.now()}.${targetFormat}`;
+      const metadata = await sharp(inputPath).metadata().catch(() => null);
+      const inputFormat = metadata?.format;
 
-        let buffer;
-
-        // 🔍 Detect input format safely
-        const metadata = await sharp(inputPath).metadata().catch(() => null);
-        const inputFormat = metadata?.format;
-
-        // ✅ SHARP SAFE PATH
-        if (
-          metadata &&
-          ["jpeg", "png", "webp", "avif", "tiff"].includes(inputFormat) &&
-          !["svg", "gif"].includes(targetFormat)
-        ) {
-          if (targetFormat === "bmp") {
-            buffer = await sharp(inputPath).png().toBuffer(); // BMP fallback
-          } else {
-            buffer = await sharp(inputPath)
-              .toFormat(targetFormat)
-              .toBuffer();
-          }
-        }
-        // ✅ IMAGEMAGICK FALLBACK (SVG, GIF, TIFF, BMP)
-        else {
-          const outPath = `${inputPath}.${targetFormat}`;
-
-          await new Promise((resolve, reject) => {
-            exec(`magick "${inputPath}" "${outPath}"`, err =>
-              err ? reject(err) : resolve()
-            );
-          });
-
-          buffer = fs.readFileSync(outPath);
-          fs.unlinkSync(outPath);
-        }
+      // ✅ Sharp-safe path
+      if (
+        metadata &&
+        isSharpSupportedInput(inputFormat) &&
+        !["svg", "gif", "bmp", "tiff"].includes(targetFormat)
+      ) {
+        const buffer = await sharp(inputPath)
+          .toFormat(targetFormat)
+          .toBuffer();
 
         zip.append(buffer, { name: outputName });
-        fs.unlinkSync(inputPath);
+      }
+      // ✅ ImageMagick path (SVG, GIF, BMP, TIFF)
+      else {
+        const tempOut = `${inputPath}.${targetFormat}`;
+
+        await new Promise((resolve, reject) => {
+          exec(
+            `magick "${inputPath}" "${tempOut}"`,
+            err => (err ? reject(err) : resolve())
+          );
+        });
+
+        zip.file(tempOut, { name: outputName });
+
+        // cleanup temp output
+        setTimeout(() => {
+          try { fs.unlinkSync(tempOut); } catch {}
+        }, 500);
       }
 
-      await zip.finalize();
-      return Buffer.concat(chunks);
-    });
+      // cleanup upload
+      try {
+        fs.unlinkSync(inputPath);
+      } catch {}
+    }
 
-    res.set({
-      "Content-Type": "application/zip",
-      "Content-Disposition": "attachment; filename=converted-images.zip",
-    });
-
-    res.send(zipBuffer);
+    await zip.finalize();
   } catch (err) {
     console.error("Image convert error:", err);
-    res.status(500).json({ error: "Image convert failed" });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Image conversion failed" });
+    }
   }
 });
+
 
 
 /* ================= PDF IMAGE EXTRACT ================= */
