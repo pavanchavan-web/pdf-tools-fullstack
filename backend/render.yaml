@@ -6,7 +6,8 @@ services:
     region: singapore
     rootDir: backend
     buildCommand: |
-      apt-get update && apt-get install -y imagemagick ghostscript poppler-utils
+      apt-get update
+      apt-get install -y imagemagick ghostscript poppler-utils
       npm install
     startCommand: npm start
     envVars:
