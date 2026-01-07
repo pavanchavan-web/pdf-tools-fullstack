@@ -10,6 +10,15 @@ import sharp from "sharp";
 import { jobQueue } from "./queue.js";
 
 const app = express();
+
+/* ===================== CONFIG ===================== */
+
+const PORT = process.env.PORT || 5000;
+
+// ImageMagick binary (Docker-safe)
+const MAGICK_BIN = process.env.MAGICK_BIN || "magick";
+
+
 app.use(cors());
 app.use(express.json());
 
