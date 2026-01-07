@@ -3,14 +3,12 @@ services:
     name: pdf-tools-backend
     env: node
     plan: starter
-    region: singapore   # closest to India
+    region: singapore
+    rootDir: backend
     buildCommand: |
-      apt-get update && apt-get install -y \
-      ghostscript \
-      poppler-utils \
-      imagemagick
+      apt-get update && apt-get install -y imagemagick ghostscript poppler-utils
       npm install
-    startCommand: node src/server.js
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
