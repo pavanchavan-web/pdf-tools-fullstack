@@ -152,67 +152,51 @@ app.post("/api/image-to-pdf", upload.array("files", 20), async (req, res) => {
 });
 
 /* ===================== IMAGE Converts ===================== */
-app.post("/api/image-convert", upload.array("files"), async (req, res) => {
+app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
   try {
     const formats = JSON.parse(req.body.formats);
 
-    const zip = archiver("zip");
-    res.setHeader("Content-Type", "application/zip");
-    zip.pipe(res);
+    const zipBuffer = await jobQueue.add(async () => {
+      const zip = archiver("zip");
+      const chunks = [];
+      zip.on("data", d => chunks.push(d));
 
-    for (let i = 0; i < req.files.length; i++) {
-      const file = req.files[i];
-      const targetFormat = formats[i];
-      const inputPath = file.path;
-      const base = path.parse(file.originalname).name;
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        const format = formats[i];
+        const base = path.parse(file.originalname).name;
 
-      const outputName = `${base}-${Date.now()}.${targetFormat}`;
-
-      const metadata = await sharp(inputPath).metadata().catch(() => null);
-      const inputFormat = metadata?.format;
-
-      // ✅ SHARP path (safe formats)
-      if (metadata && isSharpSupportedInput(inputFormat)) {
         let buffer;
 
-        if (targetFormat === "bmp") {
-          buffer = await sharp(inputPath).png().toBuffer(); // BMP via PNG fallback
-        } else if (targetFormat === "svg") {
-          // SVG output via ImageMagick
+        if (format === "svg" || format === "bmp" || format === "gif" || format === "tiff") {
+          const out = `${file.path}.${format}`;
           await new Promise((resolve, reject) => {
-            exec(
-              `magick "${inputPath}" "${outputName}"`,
-              (err) => (err ? reject(err) : resolve())
+            exec(`magick "${file.path}" "${out}"`, err =>
+              err ? reject(err) : resolve()
             );
           });
-          zip.file(outputName);
-          fs.unlinkSync(inputPath);
-          continue;
+          buffer = fs.readFileSync(out);
+          fs.unlinkSync(out);
         } else {
-          buffer = await sharp(inputPath).toFormat(targetFormat).toBuffer();
+          buffer = await sharp(file.path).toFormat(format).toBuffer();
         }
 
-        zip.append(buffer, { name: outputName });
-      }
-      // ✅ IMAGEMAGICK fallback (BMP, SVG, TIFF, GIF)
-      else {
-        await new Promise((resolve, reject) => {
-          exec(
-            `magick "${inputPath}" "${outputName}"`,
-            (err) => (err ? reject(err) : resolve())
-          );
-        });
-
-        zip.file(outputName);
+        zip.append(buffer, { name: `${base}.${format}` });
+        fs.unlinkSync(file.path);
       }
 
-      fs.unlinkSync(inputPath);
-    }
+      await zip.finalize();
+      return Buffer.concat(chunks);
+    });
 
-    await zip.finalize();
+    res.set({
+      "Content-Type": "application/zip",
+      "Content-Disposition": "attachment; filename=converted-images.zip",
+    });
+    res.send(zipBuffer);
   } catch (err) {
     console.error("Image convert error:", err);
-    res.status(500).json({ error: "Image conversion failed" });
+    res.status(500).json({ error: "Image convert failed" });
   }
 });
 
