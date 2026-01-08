@@ -121,8 +121,8 @@ export default function Home() {
       categories: ["Image Convert", "Image Tools"],
     },
     {
-      title: "Convert to SVG",
-      desc: "Convert images to SVG online. Create scalable, lightweight vector graphics for web and design use.",
+      title: "SVG to Others",
+      desc: "Convert SVG to others images format online. Create scalable, lightweight vector graphics for web and design use.",
       category: "image",
       keywords: "svg converter, convert to svg",
       icon: Convert2SVG,
