@@ -1,4 +1,4 @@
-const API_BASE = "https://pdf-tools-fullstack-1.onrender.com/api";
+const API_BASE = "https://pdf-tools-fullstack-1.onrender.com";
 
 /**
  * 🔹 LEGACY SUPPORT (DO NOT REMOVE)
@@ -11,8 +11,19 @@ export async function postFile(endpoint, formData) {
   });
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Backend error");
+    let errorMessage = "Backend error";
+
+    try {
+      const err = await res.json();
+      errorMessage = err.error || err.message || errorMessage;
+    } catch {
+      try {
+        const text = await res.text();
+        if (text) errorMessage = text;
+      } catch {}
+    }
+
+    throw new Error(errorMessage);
   }
 
   return await res.blob();
@@ -27,13 +38,20 @@ export async function postJob(endpoint, formData) {
     body: formData,
   });
 
-  if (!res.ok) throw new Error("Upload failed");
+  if (!res.ok) {
+    throw new Error("Upload failed");
+  }
+
   return res.json(); // { jobId }
 }
 
 export async function getJobStatus(jobId) {
   const res = await fetch(`${API_BASE}/job/${jobId}`);
-  if (!res.ok) throw new Error("Job fetch failed");
+
+  if (!res.ok) {
+    throw new Error("Job fetch failed");
+  }
+
   return res.json();
 }
 
@@ -41,24 +59,9 @@ export async function downloadResult(filePath) {
   const res = await fetch(
     `https://pdf-tools-fullstack-1.onrender.com/${filePath}`
   );
-  if (!res.ok) throw new Error("Download failed");
-  return await res.blob();
-}
-
-export async function postFile(endpoint, formData) {
-  const res = await fetch(`${API_BASE}/${endpoint}`, {
-    method: "POST",
-    body: formData,
-  });
 
   if (!res.ok) {
-    let err;
-    try {
-      err = await res.json();
-    } catch {
-      throw { message: "Server error" };
-    }
-    throw err;
+    throw new Error("Download failed");
   }
 
   return await res.blob();
