@@ -184,25 +184,31 @@ app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
         const file = req.files[i];
         const format = formats[i];
         const base = path.parse(file.originalname).name;
+        let buffer;
 
-        // ❌ BLOCK Raster → SVG
-        if (isRasterToSvg(file, format)) {
+        // ❌ BLOCK raster → SVG
+        if (format === "svg" && file.mimetype !== "image/svg+xml") {
           zip.append(
-            Buffer.from(
-              "Raster to SVG is not supported due to quality limitations."
-            ),
+            Buffer.from("Raster to SVG is not supported."),
             { name: `${base}-ERROR.txt` }
           );
           fs.unlinkSync(file.path);
           continue;
         }
 
-        let buffer;
-
-        // ✅ SVG → Raster (Sharp handles perfectly)
-        buffer = await sharp(file.path)
-          .toFormat(format)
-          .toBuffer();
+        // ✅ BMP output via ImageMagick
+        if (format === "bmp") {
+          const out = `${file.path}.bmp`;
+          await exec(`convert "${file.path}" "${out}"`);
+          buffer = fs.readFileSync(out);
+          fs.unlinkSync(out);
+        }
+        // ✅ All other formats via Sharp
+        else {
+          buffer = await sharp(file.path)
+            .toFormat(format)
+            .toBuffer();
+        }
 
         zip.append(buffer, { name: `${base}.${format}` });
         fs.unlinkSync(file.path);
@@ -222,6 +228,7 @@ app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
     res.status(500).json({ error: "Image convert failed" });
   }
 });
+
 
 /* ================= PDF IMAGE EXTRACT ================= */
 app.post("/api/pdf-image-extract", upload.single("file"), async (req, res) => {
