@@ -13,30 +13,6 @@ import { jobQueue } from "./queue.js";
 const exec = promisify(execCb);
 const app = express();
 
-/* ================= IMAGE MAGICK DETECTION ================= */
-
-let IMAGEMAGICK_BIN = null;
-
-async function detectImageMagick() {
-  try {
-    await exec("magick -version");
-    IMAGEMAGICK_BIN = "magick";
-    console.log("✅ ImageMagick detected: magick");
-    return;
-  } catch {}
-
-  try {
-    await exec("convert -version");
-    IMAGEMAGICK_BIN = "convert";
-    console.log("✅ ImageMagick detected: convert");
-    return;
-  } catch {}
-
-  console.error("❌ ImageMagick not found");
-}
-
-await detectImageMagick();
-
 /* ================= CONFIG ================= */
 
 app.use(cors());
@@ -52,8 +28,19 @@ app.get("/api/health", (req, res) => {
 
 const upload = multer({
   dest: "uploads/",
-  limits: { fileSize: 10 * 10240 * 10240},
+  limits: { fileSize: 10 * 10240 * 10240 },
 });
+
+/* ================= HELPERS ================= */
+
+// ❌ BLOCK Raster → SVG
+function isRasterToSvg(file, targetFormat) {
+  return (
+    targetFormat === "svg" &&
+    file.mimetype &&
+    file.mimetype !== "image/svg+xml"
+  );
+}
 
 
 /* ================= MERGE PDF ================= */
@@ -197,20 +184,25 @@ app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
         const file = req.files[i];
         const format = formats[i];
         const base = path.parse(file.originalname).name;
+
+        // ❌ BLOCK Raster → SVG
+        if (isRasterToSvg(file, format)) {
+          zip.append(
+            Buffer.from(
+              "Raster to SVG is not supported due to quality limitations."
+            ),
+            { name: `${base}-ERROR.txt` }
+          );
+          fs.unlinkSync(file.path);
+          continue;
+        }
+
         let buffer;
 
-        if (["svg", "gif", "bmp", "tiff"].includes(format)) {
-          if (!IMAGEMAGICK_BIN) {
-            throw new Error("ImageMagick not available");
-          }
-
-          const out = `${file.path}.${format}`;
-          await exec(`${IMAGEMAGICK_BIN} "${file.path}" "${out}"`);
-          buffer = fs.readFileSync(out);
-          fs.unlinkSync(out);
-        } else {
-          buffer = await sharp(file.path).toFormat(format).toBuffer();
-        }
+        // ✅ SVG → Raster (Sharp handles perfectly)
+        buffer = await sharp(file.path)
+          .toFormat(format)
+          .toBuffer();
 
         zip.append(buffer, { name: `${base}.${format}` });
         fs.unlinkSync(file.path);
