@@ -4,34 +4,57 @@ import cors from "cors";
 import fs from "fs";
 import path from "path";
 import archiver from "archiver";
-import { exec } from "child_process";
+import { exec as execCb } from "child_process";
+import { promisify } from "util";
 import { PDFDocument } from "pdf-lib";
 import sharp from "sharp";
 import { jobQueue } from "./queue.js";
 
+const exec = promisify(execCb);
 const app = express();
 
-/* ===================== CONFIG ===================== */
+/* ================= IMAGE MAGICK DETECTION ================= */
 
-const PORT = process.env.PORT || 5000;
+let IMAGEMAGICK_BIN = null;
 
-// ImageMagick binary (Docker-safe)
-const MAGICK_BIN = process.env.MAGICK_BIN || "magick";
+async function detectImageMagick() {
+  try {
+    await exec("magick -version");
+    IMAGEMAGICK_BIN = "magick";
+    console.log("✅ ImageMagick detected: magick");
+    return;
+  } catch {}
 
+  try {
+    await exec("convert -version");
+    IMAGEMAGICK_BIN = "convert";
+    console.log("✅ ImageMagick detected: convert");
+    return;
+  } catch {}
+
+  console.error("❌ ImageMagick not found");
+}
+
+await detectImageMagick();
+
+/* ================= CONFIG ================= */
 
 app.use(cors());
 app.use(express.json());
 
 /* ================= HEALTH ================= */
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
 /* ================= MULTER ================= */
+
 const upload = multer({
   dest: "uploads/",
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  limits: { fileSize: 10 * 10240 * 10240},
 });
+
 
 /* ================= MERGE PDF ================= */
 app.post("/api/merge", upload.array("files"), async (req, res) => {
@@ -174,16 +197,15 @@ app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
         const file = req.files[i];
         const format = formats[i];
         const base = path.parse(file.originalname).name;
-
         let buffer;
 
-        if (format === "svg" || format === "bmp" || format === "gif" || format === "tiff") {
+        if (["svg", "gif", "bmp", "tiff"].includes(format)) {
+          if (!IMAGEMAGICK_BIN) {
+            throw new Error("ImageMagick not available");
+          }
+
           const out = `${file.path}.${format}`;
-          await new Promise((resolve, reject) => {
-            exec(`magick "${file.path}" "${out}"`, err =>
-              err ? reject(err) : resolve()
-            );
-          });
+          await exec(`${IMAGEMAGICK_BIN} "${file.path}" "${out}"`);
           buffer = fs.readFileSync(out);
           fs.unlinkSync(out);
         } else {
