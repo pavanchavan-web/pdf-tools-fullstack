@@ -44,3 +44,22 @@ export async function downloadResult(filePath) {
   if (!res.ok) throw new Error("Download failed");
   return await res.blob();
 }
+
+export async function postFile(endpoint, formData) {
+  const res = await fetch(`${API_BASE}/${endpoint}`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    let err;
+    try {
+      err = await res.json();
+    } catch {
+      throw { message: "Server error" };
+    }
+    throw err;
+  }
+
+  return await res.blob();
+}

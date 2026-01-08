@@ -5,6 +5,7 @@ import ImageResultPreview from "../components/ImageResultPreview";
 import ProcessingOverlay from "../components/ProcessingOverlay";
 import useProgress from "../hooks/useProgress";
 import { postFile } from "../utils/api";
+import { useNotify } from "../context/NotificationContext"; // ✅ ADDED
 
 const OUTPUT_FORMATS = [
   "jpeg",
@@ -35,7 +36,8 @@ export default function ImageConvert({
   const [zipBlob, setZipBlob] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔥 Progress system (ADDED)
+  const { notify } = useNotify(); // ✅ ADDED
+
   const {
     visible,
     progress,
@@ -47,7 +49,7 @@ export default function ImageConvert({
 
   const addFiles = (files) => {
     if (items.length + files.length > MAX_IMAGES) {
-      alert("You can upload a maximum of 20 images at a time.");
+      notify("warning", "Maximum 20 images allowed per upload");
       return;
     }
 
@@ -60,6 +62,14 @@ export default function ImageConvert({
   };
 
   const updateOutput = (index, value) => {
+    // ⚠️ SVG warning
+    if (value === "svg") {
+      notify(
+        "info",
+        "SVG conversion works best for simple images (logos, icons)"
+      );
+    }
+
     setItems((prev) =>
       prev.map((item, i) =>
         i === index ? { ...item, output: value } : item
@@ -68,6 +78,13 @@ export default function ImageConvert({
   };
 
   const applyCommonOutput = (value) => {
+    if (value === "svg") {
+      notify(
+        "info",
+        "SVG is vector format – photos may not convert accurately"
+      );
+    }
+
     setCommonOutput(value);
     setItems((prev) => prev.map((i) => ({ ...i, output: value })));
   };
@@ -77,7 +94,10 @@ export default function ImageConvert({
   };
 
   const handleConvert = async () => {
-    if (items.length === 0) return;
+    if (items.length === 0) {
+      notify("warning", "Please upload at least one image");
+      return;
+    }
 
     start("Converting images...");
     setLoading(true);
@@ -91,11 +111,20 @@ export default function ImageConvert({
       );
 
       const blob = await postFile("image-convert", formData);
-      finish(); // 🔥 progress → 100%
+
+      finish();
       setZipBlob(blob);
+      notify("success", "Images converted successfully 🎉");
     } catch (err) {
       stop();
-      alert("Image conversion failed");
+
+      // 🎯 Backend error handling
+      const msg =
+        err?.message?.includes("svg")
+          ? "SVG conversion failed for this image"
+          : "Image conversion failed. Try another format.";
+
+      notify("error", msg);
     } finally {
       setLoading(false);
     }
@@ -109,14 +138,12 @@ export default function ImageConvert({
 
   return (
     <ToolLayout title={pageTitle} description={pageDesc}>
-      {/* 🔄 Progress Overlay (ADDED) */}
       <ProcessingOverlay
         visible={visible}
         progress={progress}
         text={text}
       />
 
-      {/* Upload */}
       {items.length === 0 && !zipBlob && !visible && (
         <UploadBox
           accept="image/*"
@@ -126,7 +153,6 @@ export default function ImageConvert({
         />
       )}
 
-      {/* File list */}
       {items.length > 0 && !zipBlob && !visible && (
         <div className="bg-white rounded-xl border shadow-sm">
           <div className="p-4 border-b flex items-center justify-between">
@@ -226,7 +252,6 @@ export default function ImageConvert({
         </div>
       )}
 
-      {/* Result */}
       {zipBlob && (
         <>
           <ImageResultPreview zipBlob={zipBlob} />

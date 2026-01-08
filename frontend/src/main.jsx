@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { BrowserRouter } from "react-router-dom";
+import { NotificationProvider } from "./context/NotificationContext";
 import App from "./App";
 import "./index.css"
 
@@ -15,7 +16,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ClerkProvider publishableKey={clerkKey}>
       <BrowserRouter>
-        <App />
+        <NotificationProvider>
+          <App />
+        </NotificationProvider>
       </BrowserRouter>
     </ClerkProvider>
   </React.StrictMode>

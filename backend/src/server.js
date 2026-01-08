@@ -67,7 +67,11 @@ app.post("/api/merge", upload.array("files"), async (req, res) => {
     res.send(Buffer.from(pdfBytes));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Merge failed" });
+    res.status(500).json({
+      error: true,
+      code: "MERGE_FAILED",
+      message: "Failed to merge PDF files",
+    });
   }
 });
 
@@ -104,7 +108,11 @@ app.post("/api/split", upload.single("file"), async (req, res) => {
     res.send(zipBuffer);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Split failed" });
+    res.status(500).json({
+      error: true,
+      code: "SPLIT_FAILED",
+      message: "PDF split failed",
+    });
   }
 });
 
@@ -133,7 +141,11 @@ app.post("/api/compress", upload.single("file"), async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Compression failed" });
+    res.status(500).json({
+      error: true,
+      code: "IMAGE_COMPRESS_FAILED",
+      message: "Image compression failed",
+    });
   }
 });
 
@@ -166,7 +178,13 @@ app.post("/api/image-to-pdf", upload.array("files", 20), async (req, res) => {
     res.send(Buffer.from(pdfBytes));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Image to PDF failed" });
+    res.status(500).json({
+      error: true,
+      code: "IMAGE_PDF_FAILED",
+      message: "Image to PDF failed",
+      details: err.message,
+    });
+    
   }
 });
 
@@ -225,7 +243,12 @@ app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
     res.send(zipBuffer);
   } catch (err) {
     console.error("Image convert error:", err);
-    res.status(500).json({ error: "Image convert failed" });
+    res.status(500).json({
+      error: true,
+      code: "IMAGE_CONVERT_FAILED",
+      message: "Image conversion failed",
+      details: err.message,
+    });
   }
 });
 
@@ -269,7 +292,12 @@ app.post("/api/pdf-image-extract", upload.single("file"), async (req, res) => {
     res.send(zipBuffer);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Image extraction failed" });
+    res.status(500).json({
+      error: true,
+      code: "IMAGE_EXTRACTION_FAILED",
+      message: "Image extraction failed",
+      details: err.message,
+    });
   }
 });
 
@@ -305,7 +333,13 @@ app.post("/api/image-compress", upload.array("files", 20), async (req, res) => {
     res.send(zipBuffer);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Image compression failed" });
+    res.status(500).json({
+      error: true,
+      code: "IMAGE_CONPRESSION_FAILED",
+      message: "Image compression failed",
+      details: err.message,
+    });
+    
   }
 });
 
