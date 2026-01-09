@@ -21,9 +21,6 @@ const OUTPUT_FORMATS = [
 const MAX_IMAGES = 20;
 const MAX_SIZE_MB = 20;
 
-// ❌ SVG → WEBP not supported
-const WEBP_BLOCKED_INPUTS = ["image/svg+xml"];
-
 export default function ImageConvert({
   targetFormat = "jpeg",
   title,
@@ -40,8 +37,7 @@ export default function ImageConvert({
   const [zipBlob, setZipBlob] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const addInputRef = useRef(null);
-
+  const fileInputRef = useRef(null);
   const { notify } = useNotify();
   const { visible, progress, text, start, finish, stop } = useProgress();
 
@@ -64,20 +60,20 @@ export default function ImageConvert({
       return;
     }
 
-    const mapped = files.map((f) => ({
-      file: f,
-      output: commonOutput,
-    }));
+    setItems((prev) => [
+      ...prev,
+      ...files.map((f) => ({
+        file: f,
+        output: commonOutput,
+      })),
+    ]);
 
-    setItems((prev) => [...prev, ...mapped]);
-
-    // 🔁 reset input so same files can be added again
-    if (addInputRef.current) {
-      addInputRef.current.value = "";
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
-  /* ================= UPDATE OUTPUT ================= */
+  /* ================= OUTPUT ================= */
   const updateOutput = (index, value) => {
     setItems((prev) =>
       prev.map((item, i) =>
@@ -102,61 +98,34 @@ export default function ImageConvert({
       return;
     }
 
-    // 🧠 AUTO-SKIP unsupported files
-    const validItems = [];
-    const skippedItems = [];
-
-    items.forEach((item) => {
-      if (
-        item.output === "webp" &&
-        WEBP_BLOCKED_INPUTS.includes(item.file.type)
-      ) {
-        skippedItems.push(item.file.name);
-      } else {
-        validItems.push(item);
-      }
-    });
-
-    if (validItems.length === 0) {
-      notify(
-        "error",
-        "None of the selected images can be converted to this format"
-      );
-      return;
-    }
-
-    if (skippedItems.length > 0) {
-      notify(
-        "warning",
-        `${skippedItems.length} image(s) were skipped due to format limitations`
-      );
-    }
-
     start("Converting images...");
     setLoading(true);
 
     try {
       const formData = new FormData();
-      validItems.forEach((i) => formData.append("files", i.file));
+      items.forEach((i) => formData.append("files", i.file));
       formData.append(
         "formats",
-        JSON.stringify(validItems.map((i) => i.output))
+        JSON.stringify(items.map((i) => i.output))
       );
 
       const blob = await postFile("image-convert", formData);
 
-      finish();
+      // ✅ ALWAYS SHOW RESULT if ZIP exists
       setZipBlob(blob);
+      finish();
 
       notify(
         "success",
-        `Conversion completed (${validItems.length} images)`
+        "Conversion completed. Some unsupported images may have been skipped."
       );
     } catch (err) {
       stop();
+
+      // ❌ Only show error if NOTHING was converted
       notify(
         "error",
-        "Some images could not be converted. Please try another format."
+        "Conversion failed for all images. Please try a different format."
       );
     } finally {
       setLoading(false);
@@ -186,14 +155,14 @@ export default function ImageConvert({
         <div className="bg-white rounded-xl border shadow-sm">
           <div className="p-4 border-b flex items-center justify-between">
             <button
-              onClick={() => addInputRef.current?.click()}
+              onClick={() => fileInputRef.current?.click()}
               className="text-blue-600 font-medium"
             >
               ➕ Add more images
             </button>
 
             <input
-              ref={addInputRef}
+              ref={fileInputRef}
               type="file"
               accept="image/*"
               multiple
