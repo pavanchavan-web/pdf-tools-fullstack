@@ -19,7 +19,10 @@ const OUTPUT_FORMATS = [
 ];
 
 const MAX_IMAGES = 20;
-const MAX_SIZE_MB = 20; // ✅ ADDED (speed + UX)
+const MAX_SIZE_MB = 20;
+
+// ❗ Formats that CANNOT be converted to WEBP safely
+const WEBP_BLOCKED_INPUTS = ["image/svg+xml"];
 
 export default function ImageConvert({
   targetFormat = "jpeg",
@@ -38,18 +41,15 @@ export default function ImageConvert({
   const [loading, setLoading] = useState(false);
 
   const { notify } = useNotify();
-
   const { visible, progress, text, start, finish, stop } = useProgress();
 
   /* ================= ADD FILES ================= */
   const addFiles = (files) => {
-    // 🔒 Max images check
     if (items.length + files.length > MAX_IMAGES) {
       notify("warning", "Maximum 20 images allowed per upload");
       return;
     }
 
-    // 🔒 File size check (NEW)
     const oversized = files.find(
       (f) => f.size > MAX_SIZE_MB * 1024 * 1024
     );
@@ -72,6 +72,16 @@ export default function ImageConvert({
 
   /* ================= UPDATE OUTPUT ================= */
   const updateOutput = (index, value) => {
+    const file = items[index]?.file;
+
+    // ⚠️ SVG specific warning
+    if (value === "webp" && file?.type === "image/svg+xml") {
+      notify(
+        "warning",
+        `SVG → WEBP is not supported. "${file.name}" will be skipped.`
+      );
+    }
+
     if (value === "svg") {
       notify(
         "info",
@@ -86,7 +96,21 @@ export default function ImageConvert({
     );
   };
 
+  /* ================= APPLY COMMON OUTPUT ================= */
   const applyCommonOutput = (value) => {
+    if (value === "webp") {
+      const blocked = items.filter(
+        (i) => WEBP_BLOCKED_INPUTS.includes(i.file.type)
+      );
+
+      if (blocked.length > 0) {
+        notify(
+          "warning",
+          `${blocked.length} SVG image(s) cannot be converted to WEBP and will be skipped`
+        );
+      }
+    }
+
     if (value === "svg") {
       notify(
         "info",
@@ -109,6 +133,21 @@ export default function ImageConvert({
       return;
     }
 
+    // 🧠 Pre-validation summary
+    const invalidForWebp = items.filter(
+      (i) =>
+        i.output === "webp" &&
+        WEBP_BLOCKED_INPUTS.includes(i.file.type)
+    );
+
+    if (invalidForWebp.length === items.length) {
+      notify(
+        "error",
+        "None of the selected images can be converted to WEBP"
+      );
+      return;
+    }
+
     start("Converting images...");
     setLoading(true);
 
@@ -124,16 +163,21 @@ export default function ImageConvert({
 
       finish();
       setZipBlob(blob);
-      notify("success", "Images converted successfully 🎉");
+
+      if (invalidForWebp.length > 0) {
+        notify(
+          "info",
+          `Conversion completed. ${invalidForWebp.length} image(s) were skipped.`
+        );
+      } else {
+        notify("success", "Images converted successfully 🎉");
+      }
     } catch (err) {
       stop();
-
-      const msg =
-        err?.message?.includes("svg")
-          ? "SVG conversion failed for one or more images"
-          : "Image conversion failed. Try another format.";
-
-      notify("error", msg);
+      notify(
+        "error",
+        "Some images could not be converted due to format limitations"
+      );
     } finally {
       setLoading(false);
     }
@@ -147,11 +191,7 @@ export default function ImageConvert({
 
   return (
     <ToolLayout title={pageTitle} description={pageDesc}>
-      <ProcessingOverlay
-        visible={visible}
-        progress={progress}
-        text={text}
-      />
+      <ProcessingOverlay visible={visible} progress={progress} text={text} />
 
       {items.length === 0 && !zipBlob && !visible && (
         <UploadBox
@@ -176,9 +216,7 @@ export default function ImageConvert({
 
             <select
               value={commonOutput}
-              onChange={(e) =>
-                applyCommonOutput(e.target.value)
-              }
+              onChange={(e) => applyCommonOutput(e.target.value)}
               className="border rounded px-3 py-2 font-medium"
             >
               {OUTPUT_FORMATS.map((f) => (
