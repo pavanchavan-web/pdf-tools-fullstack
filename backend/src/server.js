@@ -190,22 +190,57 @@ app.post("/api/compress", upload.single("file"), async (req, res) => {
 });
 
 /* ================= IMAGE → PDF ================= */
-app.post("/api/image-to-pdf", upload.array("files", 20), async (req, res) => {
+app.post("/api/image-to-pdf", upload.array("files", 30), async (req, res) => {
   try {
     const pdfBytes = await jobQueue.add(async () => {
       const pdfDoc = await PDFDocument.create();
 
+      let validImageCount = 0;
+
       for (const file of req.files) {
-        const bytes = fs.readFileSync(file.path);
+        try {
+          // ✅ Only JPG / PNG supported
+          if (
+            file.mimetype !== "image/jpeg" &&
+            file.mimetype !== "image/jpg" &&
+            file.mimetype !== "image/png"
+          ) {
+            fs.unlinkSync(file.path);
+            continue;
+          }
 
-        const image =
-          file.mimetype.includes("png")
-            ? await pdfDoc.embedPng(bytes)
-            : await pdfDoc.embedJpg(bytes);
+          const bytes = fs.readFileSync(file.path);
 
-        const page = pdfDoc.addPage([image.width, image.height]);
-        page.drawImage(image, { x: 0, y: 0 });
-        fs.unlinkSync(file.path);
+          const image =
+            file.mimetype.includes("png")
+              ? await pdfDoc.embedPng(bytes)
+              : await pdfDoc.embedJpg(bytes);
+
+          const page = pdfDoc.addPage([
+            image.width,
+            image.height,
+          ]);
+
+          page.drawImage(image, { x: 0, y: 0 });
+
+          validImageCount++;
+          fs.unlinkSync(file.path);
+        } catch (innerErr) {
+          // ⚠️ Skip corrupted image but continue
+          console.error(
+            "Skipped image:",
+            file.originalname,
+            innerErr.message
+          );
+          try {
+            fs.unlinkSync(file.path);
+          } catch {}
+        }
+      }
+
+      // ❌ No valid images → hard fail
+      if (validImageCount === 0) {
+        throw new Error("NO_VALID_IMAGES");
       }
 
       return await pdfDoc.save();
@@ -215,18 +250,24 @@ app.post("/api/image-to-pdf", upload.array("files", 20), async (req, res) => {
       "Content-Type": "application/pdf",
       "Content-Disposition": "attachment; filename=images.pdf",
     });
+
     res.send(Buffer.from(pdfBytes));
   } catch (err) {
-    console.error(err);
+    console.error("Image → PDF error:", err);
+
+    const message =
+      err.message === "NO_VALID_IMAGES"
+        ? "No supported images found. Only JPG and PNG are allowed."
+        : "Image to PDF conversion failed";
+
     res.status(500).json({
       error: true,
       code: "IMAGE_PDF_FAILED",
-      message: "Image to PDF failed",
-      details: err.message,
+      message,
     });
-    
   }
 });
+
 
 /* ===================== IMAGE Converts ===================== */
 app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
