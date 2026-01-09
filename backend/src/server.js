@@ -238,38 +238,58 @@ app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
       const chunks = [];
       zip.on("data", d => chunks.push(d));
 
+      let successCount = 0;
+
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
         const format = formats[i];
         const base = path.parse(file.originalname).name;
-        let buffer;
 
-        // ❌ BLOCK raster → SVG
-        if (format === "svg" && file.mimetype !== "image/svg+xml") {
-          zip.append(
-            Buffer.from("Raster to SVG is not supported."),
-            { name: `${base}-ERROR.txt` }
-          );
-          fs.unlinkSync(file.path);
-          continue;
-        }
+        try {
+          let buffer;
 
-        // ✅ BMP output via ImageMagick
-        if (format === "bmp") {
-          const out = `${file.path}.bmp`;
-          await exec(`convert "${file.path}" "${out}"`);
-          buffer = fs.readFileSync(out);
-          fs.unlinkSync(out);
-        }
-        // ✅ All other formats via Sharp
-        else {
+          /* ❌ Raster → SVG NOT supported */
+          if (format === "svg" && file.mimetype !== "image/svg+xml") {
+            zip.append(
+              Buffer.from("Raster to SVG conversion is not supported."),
+              { name: `${base}-ERROR.txt` }
+            );
+            continue;
+          }
+
+          /* ❌ BMP output NOT supported */
+          if (format === "bmp") {
+            zip.append(
+              Buffer.from("BMP output format is not supported."),
+              { name: `${base}-ERROR.txt` }
+            );
+            continue;
+          }
+
+          /* ✅ All other formats via Sharp */
           buffer = await sharp(file.path)
             .toFormat(format)
             .toBuffer();
-        }
 
-        zip.append(buffer, { name: `${base}.${format}` });
-        fs.unlinkSync(file.path);
+          zip.append(buffer, { name: `${base}.${format}` });
+          successCount++;
+        } catch (err) {
+          // 🔕 File-level failure (do NOT kill job)
+          zip.append(
+            Buffer.from(`Conversion failed: ${err.message}`),
+            { name: `${base}-ERROR.txt` }
+          );
+        } finally {
+          // 🧹 Always cleanup temp file
+          try {
+            fs.unlinkSync(file.path);
+          } catch {}
+        }
+      }
+
+      // 🚨 FAIL JOB ONLY IF NOTHING CONVERTED
+      if (successCount === 0) {
+        throw new Error("All image conversions failed");
       }
 
       await zip.finalize();
@@ -281,13 +301,13 @@ app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
       "Content-Disposition": "attachment; filename=converted-images.zip",
     });
     res.send(zipBuffer);
+
   } catch (err) {
     console.error("Image convert error:", err);
     res.status(500).json({
       error: true,
       code: "IMAGE_CONVERT_FAILED",
-      message: "Image conversion failed",
-      details: err.message,
+      message: err.message || "Image conversion failed",
     });
   }
 });
