@@ -25,7 +25,7 @@ export default function ImageConvert({
   targetFormat = "jpeg",
   title,
   desc,
-  maxText = "Max 20 images per upload. Max 10MB per image",
+  maxText = "Max 20 images per upload.",
 }) {
   const pageTitle = title || "Image Converter";
   const pageDesc =
