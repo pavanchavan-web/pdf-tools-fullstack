@@ -194,27 +194,44 @@ app.post("/api/image-to-pdf", upload.array("files", 30), async (req, res) => {
   try {
     const pdfBytes = await jobQueue.add(async () => {
       const pdfDoc = await PDFDocument.create();
-
       let validImageCount = 0;
 
       for (const file of req.files) {
         try {
-          // ✅ Only JPG / PNG supported
-          if (
-            file.mimetype !== "image/jpeg" &&
-            file.mimetype !== "image/jpg" &&
-            file.mimetype !== "image/png"
+          let imageBuffer = null;
+          let embedType = null;
+
+          // ✅ PNG
+          if (file.mimetype === "image/png") {
+            imageBuffer = fs.readFileSync(file.path);
+            embedType = "png";
+          }
+
+          // ✅ JPG / JPEG
+          else if (
+            file.mimetype === "image/jpeg" ||
+            file.mimetype === "image/jpg"
           ) {
+            imageBuffer = fs.readFileSync(file.path);
+            embedType = "jpg";
+          }
+
+          // ✅ WEBP → convert to PNG
+          else if (file.mimetype === "image/webp") {
+            imageBuffer = await sharp(file.path).png().toBuffer();
+            embedType = "png";
+          }
+
+          // ❌ Unsupported image → skip
+          else {
             fs.unlinkSync(file.path);
             continue;
           }
 
-          const bytes = fs.readFileSync(file.path);
-
           const image =
-            file.mimetype.includes("png")
-              ? await pdfDoc.embedPng(bytes)
-              : await pdfDoc.embedJpg(bytes);
+            embedType === "png"
+              ? await pdfDoc.embedPng(imageBuffer)
+              : await pdfDoc.embedJpg(imageBuffer);
 
           const page = pdfDoc.addPage([
             image.width,
@@ -226,7 +243,6 @@ app.post("/api/image-to-pdf", upload.array("files", 30), async (req, res) => {
           validImageCount++;
           fs.unlinkSync(file.path);
         } catch (innerErr) {
-          // ⚠️ Skip corrupted image but continue
           console.error(
             "Skipped image:",
             file.originalname,
@@ -238,7 +254,7 @@ app.post("/api/image-to-pdf", upload.array("files", 30), async (req, res) => {
         }
       }
 
-      // ❌ No valid images → hard fail
+      // ❌ Nothing valid
       if (validImageCount === 0) {
         throw new Error("NO_VALID_IMAGES");
       }
@@ -257,7 +273,7 @@ app.post("/api/image-to-pdf", upload.array("files", 30), async (req, res) => {
 
     const message =
       err.message === "NO_VALID_IMAGES"
-        ? "No supported images found. Only JPG and PNG are allowed."
+        ? "No supported images found. Supported: JPG, PNG, WEBP."
         : "Image to PDF conversion failed";
 
     res.status(500).json({

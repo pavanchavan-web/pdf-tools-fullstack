@@ -64,7 +64,7 @@ export default function ImageToPdf() {
 
     if (unsupported.length > 0) {
       notify(
-        "info",
+        "warning",
         `${unsupported.length} image(s) skipped (BMP, GIF, SVG not supported for PDF)`
       );
     }

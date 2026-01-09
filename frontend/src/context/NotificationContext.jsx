@@ -12,7 +12,7 @@ export function NotificationProvider({ children }) {
 
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
-    }, 4000);
+    }, 8000);
   };
 
   return (
