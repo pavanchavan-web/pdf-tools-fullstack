@@ -29,12 +29,12 @@ app.use(
 );
 
 // Rate limiting (API protection)
-// const apiLimiter = rateLimit({
-//   windowMs: 15 * 60 * 1000,
-//   max: 300,
-//   standardHeaders: true,
-//   legacyHeaders: false,
-// });
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 app.use("/api/", apiLimiter);
 

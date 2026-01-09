@@ -1,8 +1,7 @@
-const API_BASE = "https://pdf-tools-fullstack-1.onrender.com";
+const API_BASE = "https://pdf-tools-fullstack-1.onrender.com/api";
 
 /**
  * 🔹 LEGACY SUPPORT (DO NOT REMOVE)
- * Used by existing tools (merge, split, image-to-pdf, etc.)
  */
 export async function postFile(endpoint, formData) {
   const res = await fetch(`${API_BASE}/${endpoint}`, {
@@ -38,20 +37,13 @@ export async function postJob(endpoint, formData) {
     body: formData,
   });
 
-  if (!res.ok) {
-    throw new Error("Upload failed");
-  }
-
-  return res.json(); // { jobId }
+  if (!res.ok) throw new Error("Upload failed");
+  return res.json();
 }
 
 export async function getJobStatus(jobId) {
   const res = await fetch(`${API_BASE}/job/${jobId}`);
-
-  if (!res.ok) {
-    throw new Error("Job fetch failed");
-  }
-
+  if (!res.ok) throw new Error("Job fetch failed");
   return res.json();
 }
 
@@ -60,9 +52,6 @@ export async function downloadResult(filePath) {
     `https://pdf-tools-fullstack-1.onrender.com/${filePath}`
   );
 
-  if (!res.ok) {
-    throw new Error("Download failed");
-  }
-
+  if (!res.ok) throw new Error("Download failed");
   return await res.blob();
 }
