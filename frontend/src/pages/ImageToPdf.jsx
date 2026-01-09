@@ -6,14 +6,24 @@ import ResultPanel from "../components/ResultPanel";
 import ProcessingOverlay from "../components/ProcessingOverlay";
 import useProgress from "../hooks/useProgress";
 import { postFile } from "../utils/api";
+import { useNotify } from "../context/NotificationContext";
 
 const MAX_FILES = 30;
 const MAX_TOTAL_SIZE = 1 * 1024 * 1024 * 1024; // 1GB
+
+const ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
 
 export default function ImageToPdf() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [resultUrl, setResultUrl] = useState(null);
+
+  const { notify } = useNotify();
 
   const {
     visible,
@@ -24,59 +34,90 @@ export default function ImageToPdf() {
     stop,
   } = useProgress();
 
-  /* ================= VALIDATION ================= */
-  const validateFiles = (incoming) => {
-    if (incoming.length > MAX_FILES) {
-      alert(`Maximum ${MAX_FILES} images allowed`);
-      return false;
+  /* ================= ADD FILES ================= */
+  const addFiles = (newFiles) => {
+    const combined = [...files, ...newFiles];
+
+    // 🔒 Max files
+    if (combined.length > MAX_FILES) {
+      notify("warning", `Maximum ${MAX_FILES} images allowed`);
+      return;
     }
 
-    const invalid = incoming.find(
-      (f) => !f.type.startsWith("image/")
-    );
-    if (invalid) {
-      alert("Only image files are allowed");
-      return false;
-    }
-
-    const totalSize = incoming.reduce(
+    // 🔒 Total size
+    const totalSize = combined.reduce(
       (sum, f) => sum + f.size,
       0
     );
     if (totalSize > MAX_TOTAL_SIZE) {
-      alert("Total file size exceeds 1GB limit");
-      return false;
+      notify(
+        "error",
+        "Total upload size exceeds 1GB limit"
+      );
+      return;
     }
 
-    return true;
-  };
+    // 🚫 Unsupported formats
+    const unsupported = newFiles.filter(
+      (f) => !ALLOWED_TYPES.includes(f.type)
+    );
 
-  /* ================= ADD FILES ================= */
-  const addFiles = (newFiles) => {
-    const merged = [...files, ...newFiles];
-    if (!validateFiles(merged)) return;
-    setFiles(merged);
+    if (unsupported.length > 0) {
+      notify(
+        "info",
+        `${unsupported.length} image(s) skipped (BMP, GIF, SVG not supported for PDF)`
+      );
+    }
+
+    // ✅ Keep only valid images
+    const validFiles = newFiles.filter((f) =>
+      ALLOWED_TYPES.includes(f.type)
+    );
+
+    if (validFiles.length === 0) {
+      notify(
+        "error",
+        "No supported images found to convert"
+      );
+      return;
+    }
+
+    setFiles((prev) => [...prev, ...validFiles]);
   };
 
   /* ================= CONVERT ================= */
   const convertNow = async () => {
-    if (files.length === 0) return;
+    if (files.length === 0) {
+      notify("warning", "Please upload at least one image");
+      return;
+    }
 
     try {
       start("Converting images to PDF...");
       setLoading(true);
 
       const formData = new FormData();
-      files.forEach((file) => formData.append("files", file));
+      files.forEach((file) =>
+        formData.append("files", file)
+      );
 
-      const blob = await postFile("image-to-pdf", formData);
-      const url = URL.createObjectURL(blob);
+      const blob = await postFile(
+        "image-to-pdf",
+        formData
+      );
 
       finish();
-      setResultUrl(url);
+      setResultUrl(URL.createObjectURL(blob));
+      notify(
+        "success",
+        "Images converted to PDF successfully 🎉"
+      );
     } catch (err) {
       stop();
-      alert(err.message || "Conversion failed");
+      notify(
+        "error",
+        err?.message || "Image to PDF conversion failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -91,7 +132,7 @@ export default function ImageToPdf() {
   return (
     <ToolLayout
       title="Image to PDF"
-      description="Convert up to 30 images into a single PDF (Max 1GB)"
+      description="Convert up to 30 JPG / PNG / WEBP images into a single PDF (Max 1GB)"
     >
       <ProcessingOverlay
         visible={visible}
@@ -104,15 +145,14 @@ export default function ImageToPdf() {
         <UploadBox
           accept="image/*"
           multiple
-          label="Select images (Max 30 • Total 1GB)"
+          label="Select images (JPG, PNG, WEBP)"
           onFiles={addFiles}
         />
       )}
 
-      {/* FILE LIST PAGE */}
+      {/* FILE LIST */}
       {files.length > 0 && !resultUrl && !visible && (
         <div className="bg-white rounded-xl border shadow-sm">
-          {/* TOP BAR */}
           <div className="p-4 border-b flex justify-between items-center">
             <button
               onClick={() =>
