@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import ToolLayout from "../components/ToolLayout";
 import UploadBox from "../components/UploadBox";
 import ImageResultPreview from "../components/ImageResultPreview";
@@ -21,7 +21,7 @@ const OUTPUT_FORMATS = [
 const MAX_IMAGES = 20;
 const MAX_SIZE_MB = 20;
 
-// ❗ Formats that CANNOT be converted to WEBP safely
+// ❌ SVG → WEBP not supported
 const WEBP_BLOCKED_INPUTS = ["image/svg+xml"];
 
 export default function ImageConvert({
@@ -39,6 +39,8 @@ export default function ImageConvert({
   const [commonOutput, setCommonOutput] = useState(targetFormat);
   const [zipBlob, setZipBlob] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const addInputRef = useRef(null);
 
   const { notify } = useNotify();
   const { visible, progress, text, start, finish, stop } = useProgress();
@@ -64,31 +66,19 @@ export default function ImageConvert({
 
     const mapped = files.map((f) => ({
       file: f,
-      output: targetFormat,
+      output: commonOutput,
     }));
 
     setItems((prev) => [...prev, ...mapped]);
+
+    // 🔁 reset input so same files can be added again
+    if (addInputRef.current) {
+      addInputRef.current.value = "";
+    }
   };
 
   /* ================= UPDATE OUTPUT ================= */
   const updateOutput = (index, value) => {
-    const file = items[index]?.file;
-
-    // ⚠️ SVG specific warning
-    if (value === "webp" && file?.type === "image/svg+xml") {
-      notify(
-        "warning",
-        `SVG → WEBP is not supported. "${file.name}" will be skipped.`
-      );
-    }
-
-    if (value === "svg") {
-      notify(
-        "info",
-        "SVG works best for logos & icons. Photos may fail."
-      );
-    }
-
     setItems((prev) =>
       prev.map((item, i) =>
         i === index ? { ...item, output: value } : item
@@ -96,28 +86,7 @@ export default function ImageConvert({
     );
   };
 
-  /* ================= APPLY COMMON OUTPUT ================= */
   const applyCommonOutput = (value) => {
-    if (value === "webp") {
-      const blocked = items.filter(
-        (i) => WEBP_BLOCKED_INPUTS.includes(i.file.type)
-      );
-
-      if (blocked.length > 0) {
-        notify(
-          "warning",
-          `${blocked.length} SVG image(s) cannot be converted to WEBP and will be skipped`
-        );
-      }
-    }
-
-    if (value === "svg") {
-      notify(
-        "info",
-        "SVG is a vector format – raster images may not convert"
-      );
-    }
-
     setCommonOutput(value);
     setItems((prev) => prev.map((i) => ({ ...i, output: value })));
   };
@@ -133,19 +102,34 @@ export default function ImageConvert({
       return;
     }
 
-    // 🧠 Pre-validation summary
-    const invalidForWebp = items.filter(
-      (i) =>
-        i.output === "webp" &&
-        WEBP_BLOCKED_INPUTS.includes(i.file.type)
-    );
+    // 🧠 AUTO-SKIP unsupported files
+    const validItems = [];
+    const skippedItems = [];
 
-    if (invalidForWebp.length === items.length) {
+    items.forEach((item) => {
+      if (
+        item.output === "webp" &&
+        WEBP_BLOCKED_INPUTS.includes(item.file.type)
+      ) {
+        skippedItems.push(item.file.name);
+      } else {
+        validItems.push(item);
+      }
+    });
+
+    if (validItems.length === 0) {
       notify(
         "error",
-        "None of the selected images can be converted to WEBP"
+        "None of the selected images can be converted to this format"
       );
       return;
+    }
+
+    if (skippedItems.length > 0) {
+      notify(
+        "warning",
+        `${skippedItems.length} image(s) were skipped due to format limitations`
+      );
     }
 
     start("Converting images...");
@@ -153,10 +137,10 @@ export default function ImageConvert({
 
     try {
       const formData = new FormData();
-      items.forEach((i) => formData.append("files", i.file));
+      validItems.forEach((i) => formData.append("files", i.file));
       formData.append(
         "formats",
-        JSON.stringify(items.map((i) => i.output))
+        JSON.stringify(validItems.map((i) => i.output))
       );
 
       const blob = await postFile("image-convert", formData);
@@ -164,19 +148,15 @@ export default function ImageConvert({
       finish();
       setZipBlob(blob);
 
-      if (invalidForWebp.length > 0) {
-        notify(
-          "info",
-          `Conversion completed. ${invalidForWebp.length} image(s) were skipped.`
-        );
-      } else {
-        notify("success", "Images converted successfully 🎉");
-      }
+      notify(
+        "success",
+        `Conversion completed (${validItems.length} images)`
+      );
     } catch (err) {
       stop();
       notify(
         "error",
-        "Some images could not be converted due to format limitations"
+        "Some images could not be converted. Please try another format."
       );
     } finally {
       setLoading(false);
@@ -206,13 +186,20 @@ export default function ImageConvert({
         <div className="bg-white rounded-xl border shadow-sm">
           <div className="p-4 border-b flex items-center justify-between">
             <button
-              onClick={() =>
-                document.getElementById("addMoreImages").click()
-              }
+              onClick={() => addInputRef.current?.click()}
               className="text-blue-600 font-medium"
             >
               ➕ Add more images
             </button>
+
+            <input
+              ref={addInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              onChange={(e) => addFiles([...e.target.files])}
+            />
 
             <select
               value={commonOutput}
