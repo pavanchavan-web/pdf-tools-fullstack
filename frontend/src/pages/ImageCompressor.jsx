@@ -3,6 +3,8 @@ import ToolLayout from "../components/ToolLayout";
 import UploadBox from "../components/UploadBox";
 import ImageResultPreview from "../components/ImageResultPreview";
 import BeforeAfterCompare from "../components/BeforeAfterCompare";
+import ProcessingOverlay from "../components/ProcessingOverlay"; // ✅ ADDED
+import useProgress from "../hooks/useProgress"; // ✅ ADDED
 import { postFile } from "../utils/api";
 import { useNotify } from "../context/NotificationContext";
 
@@ -23,6 +25,9 @@ export default function ImageCompressor() {
   const [afterSrc, setAfterSrc] = useState(null);
 
   const { notify } = useNotify();
+
+  // 🔥 Progress system (SAME AS ImageConvert)
+  const { visible, progress, text, start, finish, stop } = useProgress();
 
   /* -------------------------------
      Keep original format handling
@@ -57,14 +62,15 @@ export default function ImageCompressor() {
       return;
     }
 
-    if (totalSize + newFiles.reduce((s, f) => s + f.size, 0) > MAX_TOTAL_SIZE) {
+    if (
+      totalSize + newFiles.reduce((s, f) => s + f.size, 0) >
+      MAX_TOTAL_SIZE
+    ) {
       notify("error", "Total upload size exceeds 1GB");
       return;
     }
 
-    const unsupported = newFiles.filter(
-      (f) => f.type === "image/bmp"
-    );
+    const unsupported = newFiles.filter((f) => f.type === "image/bmp");
 
     if (unsupported.length) {
       notify(
@@ -73,9 +79,7 @@ export default function ImageCompressor() {
       );
     }
 
-    const supported = newFiles.filter(
-      (f) => f.type !== "image/bmp"
-    );
+    const supported = newFiles.filter((f) => f.type !== "image/bmp");
 
     if (!supported.length) {
       notify("error", "No supported images to compress");
@@ -86,7 +90,7 @@ export default function ImageCompressor() {
   };
 
   /* -------------------------------
-     Compression
+     Compress (FINAL action)
   --------------------------------*/
   const compress = async () => {
     if (!files.length) {
@@ -94,6 +98,7 @@ export default function ImageCompressor() {
       return;
     }
 
+    start("Compressing images...");
     setLoading(true);
 
     try {
@@ -104,6 +109,8 @@ export default function ImageCompressor() {
       formData.append("keepOriginal", keepOriginal);
 
       const blob = await postFile("image-compress", formData);
+
+      finish(); // ✅ Progress → 100%
       setZipBlob(blob);
 
       notify(
@@ -111,10 +118,8 @@ export default function ImageCompressor() {
         `Compressed ${files.length} image(s) successfully 🎉`
       );
     } catch (err) {
-      notify(
-        "error",
-        err?.message || "Image compression failed"
-      );
+      stop();
+      notify("error", err?.message || "Image compression failed");
     } finally {
       setLoading(false);
     }
@@ -147,7 +152,14 @@ export default function ImageCompressor() {
       title="AI Image Compressor"
       description="Compress images intelligently with live preview and quality control"
     >
-      {!files.length && !zipBlob && (
+      {/* 🔄 Progress Overlay (ADDED) */}
+      <ProcessingOverlay
+        visible={visible}
+        progress={progress}
+        text={text}
+      />
+
+      {!files.length && !zipBlob && !visible && (
         <UploadBox
           accept="image/*"
           multiple
@@ -156,7 +168,7 @@ export default function ImageCompressor() {
         />
       )}
 
-      {!zipBlob && files.length > 0 && (
+      {!zipBlob && files.length > 0 && !visible && (
         <>
           <h3 className="text-center font-medium mb-2">
             {files[activeIndex]?.name}
