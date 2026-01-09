@@ -426,17 +426,51 @@ app.post("/api/image-compress", upload.array("files", 20), async (req, res) => {
       const chunks = [];
       zip.on("data", d => chunks.push(d));
 
+      let successCount = 0;
+      let skippedCount = 0;
+
       for (const file of req.files) {
-        const buffer = await sharp(file.path)
-          .resize({ width: 2000, withoutEnlargement: true })
-          .webp({ quality: 75 })
-          .toBuffer();
+        try {
+          // ❌ Skip BMP images (Sharp limitation)
+          if (file.mimetype === "image/bmp") {
+            skippedCount++;
+            fs.unlinkSync(file.path);
+            continue;
+          }
 
-        zip.append(buffer, {
-          name: `${path.parse(file.originalname).name}-compressed.webp`,
-        });
+          const buffer = await sharp(file.path)
+            .resize({ width: 2000, withoutEnlargement: true })
+            .webp({ quality: 75 })
+            .toBuffer();
 
-        fs.unlinkSync(file.path);
+          zip.append(buffer, {
+            name: `${path.parse(file.originalname).name}-compressed.webp`,
+          });
+
+          successCount++;
+          fs.unlinkSync(file.path);
+        } catch (innerErr) {
+          // Skip broken images safely
+          skippedCount++;
+          fs.unlinkSync(file.path);
+        }
+      }
+
+      // ❌ If nothing was compressed → hard error
+      if (successCount === 0) {
+        throw new Error(
+          "No supported images found. BMP images are not supported."
+        );
+      }
+
+      // ℹ️ Optional info file inside ZIP
+      if (skippedCount > 0) {
+        zip.append(
+          Buffer.from(
+            `${skippedCount} image(s) were skipped (unsupported format)`
+          ),
+          { name: "INFO.txt" }
+        );
       }
 
       await zip.finalize();
@@ -447,16 +481,16 @@ app.post("/api/image-compress", upload.array("files", 20), async (req, res) => {
       "Content-Type": "application/zip",
       "Content-Disposition": "attachment; filename=compressed-images.zip",
     });
+
     res.send(zipBuffer);
   } catch (err) {
-    console.error(err);
+    console.error("Image compress error:", err);
+
     res.status(500).json({
       error: true,
-      code: "IMAGE_CONPRESSION_FAILED",
-      message: "Image compression failed",
-      details: err.message,
+      code: "IMAGE_COMPRESSION_FAILED",
+      message: err.message || "Image compression failed",
     });
-    
   }
 });
 

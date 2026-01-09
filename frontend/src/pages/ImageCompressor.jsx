@@ -4,52 +4,130 @@ import UploadBox from "../components/UploadBox";
 import ImageResultPreview from "../components/ImageResultPreview";
 import BeforeAfterCompare from "../components/BeforeAfterCompare";
 import { postFile } from "../utils/api";
+import { useNotify } from "../context/NotificationContext";
+
+const MAX_FILES = 20;
+const MAX_TOTAL_SIZE = 1024 * 1024 * 1024; // 1GB
 
 export default function ImageCompressor() {
   const [files, setFiles] = useState([]);
   const [zipBlob, setZipBlob] = useState(null);
 
-  // compression options
   const [quality, setQuality] = useState(74);
   const [format, setFormat] = useState("webp");
   const [keepOriginal, setKeepOriginal] = useState(false);
-
   const [loading, setLoading] = useState(false);
 
-  // preview
   const [activeIndex, setActiveIndex] = useState(0);
   const [beforeSrc, setBeforeSrc] = useState(null);
   const [afterSrc, setAfterSrc] = useState(null);
 
+  const { notify } = useNotify();
+
   /* -------------------------------
-     Auto format handling
+     Keep original format handling
   --------------------------------*/
   useEffect(() => {
-    if (keepOriginal) {
-      setFormat("original");
-    } else if (format === "original") {
-      setFormat("webp");
-    }
+    if (keepOriginal) setFormat("original");
+    else if (format === "original") setFormat("webp");
   }, [keepOriginal]);
 
   /* -------------------------------
-     Update preview on change
+     Preview update
   --------------------------------*/
   useEffect(() => {
     if (!files.length) return;
 
     const file = files[activeIndex];
     const url = URL.createObjectURL(file);
-
     setBeforeSrc(url);
-    setAfterSrc(url); // simulated preview
+    setAfterSrc(url);
 
     return () => URL.revokeObjectURL(url);
   }, [files, activeIndex, quality, format]);
 
   /* -------------------------------
-     Size calculation (simulated)
+     Helpers
   --------------------------------*/
+  const totalSize = files.reduce((s, f) => s + f.size, 0);
+
+  const addFiles = (newFiles) => {
+    if (files.length + newFiles.length > MAX_FILES) {
+      notify("warning", "Maximum 20 images allowed");
+      return;
+    }
+
+    if (totalSize + newFiles.reduce((s, f) => s + f.size, 0) > MAX_TOTAL_SIZE) {
+      notify("error", "Total upload size exceeds 1GB");
+      return;
+    }
+
+    const unsupported = newFiles.filter(
+      (f) => f.type === "image/bmp"
+    );
+
+    if (unsupported.length) {
+      notify(
+        "warning",
+        `${unsupported.length} BMP image(s) will be skipped automatically`
+      );
+    }
+
+    const supported = newFiles.filter(
+      (f) => f.type !== "image/bmp"
+    );
+
+    if (!supported.length) {
+      notify("error", "No supported images to compress");
+      return;
+    }
+
+    setFiles((prev) => [...prev, ...supported]);
+  };
+
+  /* -------------------------------
+     Compression
+  --------------------------------*/
+  const compress = async () => {
+    if (!files.length) {
+      notify("warning", "Please upload at least one image");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      files.forEach((f) => formData.append("files", f));
+      formData.append("quality", quality);
+      formData.append("format", format);
+      formData.append("keepOriginal", keepOriginal);
+
+      const blob = await postFile("image-compress", formData);
+      setZipBlob(blob);
+
+      notify(
+        "success",
+        `Compressed ${files.length} image(s) successfully 🎉`
+      );
+    } catch (err) {
+      notify(
+        "error",
+        err?.message || "Image compression failed"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const reset = () => {
+    setFiles([]);
+    setZipBlob(null);
+    setActiveIndex(0);
+    setBeforeSrc(null);
+    setAfterSrc(null);
+  };
+
   const originalSizeKB = files[activeIndex]
     ? Math.round(files[activeIndex].size / 1024)
     : 0;
@@ -64,55 +142,26 @@ export default function ImageCompressor() {
       ? 100 - Math.round((previewSizeKB / originalSizeKB) * 100)
       : 0;
 
-  /* -------------------------------
-     Compress (FINAL action)
-  --------------------------------*/
-  const compress = async () => {
-    setLoading(true);
-
-    const formData = new FormData();
-    files.forEach((f) => formData.append("files", f));
-    formData.append("quality", quality);
-    formData.append("format", format);
-    formData.append("keepOriginal", keepOriginal);
-
-    const blob = await postFile("image-compress", formData);
-    setZipBlob(blob);
-    setLoading(false);
-  };
-
-  const reset = () => {
-    setFiles([]);
-    setZipBlob(null);
-    setActiveIndex(0);
-    setBeforeSrc(null);
-    setAfterSrc(null);
-  };
-
   return (
     <ToolLayout
       title="AI Image Compressor"
       description="Compress images intelligently with live preview and quality control"
     >
-      {/* Upload */}
       {!files.length && !zipBlob && (
         <UploadBox
           accept="image/*"
           multiple
-          maxText="Max 20 images per upload. Sign up for more"
-          onFiles={(f) => setFiles(f)}
+          maxText="Max 20 images, 1GB total. BMP will be skipped."
+          onFiles={addFiles}
         />
       )}
 
-      {/* CONFIGURATION + PREVIEW */}
       {!zipBlob && files.length > 0 && (
         <>
-          {/* Filename */}
           <h3 className="text-center font-medium mb-2">
             {files[activeIndex]?.name}
           </h3>
 
-          {/* Size info */}
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>Original: {originalSizeKB} KB</span>
             <span>
@@ -120,12 +169,10 @@ export default function ImageCompressor() {
             </span>
           </div>
 
-          {/* Before / After */}
           {beforeSrc && afterSrc && (
             <BeforeAfterCompare before={beforeSrc} after={afterSrc} />
           )}
 
-          {/* Bulk thumbnails */}
           <div className="flex gap-3 overflow-x-auto mt-6 mb-4">
             {files.map((file, i) => (
               <img
@@ -140,14 +187,26 @@ export default function ImageCompressor() {
             ))}
           </div>
 
-          <p className="text-sm text-gray-500 mb-4">
-            Compression settings will apply to all uploaded images
-          </p>
+          <button
+            onClick={() =>
+              document.getElementById("addMoreCompress").click()
+            }
+            className="text-blue-600 font-medium mb-4"
+          >
+            ➕ Add more images
+          </button>
 
-          {/* Options */}
+          <input
+            id="addMoreCompress"
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            onChange={(e) => addFiles([...e.target.files])}
+          />
+
           <div className="bg-white border rounded-xl p-4 mb-6">
             <div className="flex flex-wrap gap-6 items-center justify-between">
-              {/* Format */}
               <div>
                 <label className="block text-sm mb-1">Format</label>
                 <select
@@ -156,45 +215,39 @@ export default function ImageCompressor() {
                   onChange={(e) => setFormat(e.target.value)}
                   className="border px-3 py-2 rounded disabled:bg-gray-100"
                 >
-                  <option value="webp">WEBP (Recommended)</option>
+                  <option value="webp">WEBP</option>
                   <option value="jpeg">JPEG</option>
                   <option value="avif">AVIF</option>
                   <option value="png">PNG</option>
                 </select>
 
-                {/* Keep original */}
-                <div className="flex items-center gap-2 mt-1 justify-center">
-                    <input
+                <div className="flex items-center gap-2 mt-2">
+                  <input
                     type="checkbox"
                     checked={keepOriginal}
                     onChange={(e) => setKeepOriginal(e.target.checked)}
-                    />
-                    <span className="text-sm">Keep original format</span>
+                  />
+                  <span className="text-sm">Keep original format</span>
                 </div>
-
               </div>
 
-              {/* Quality slider */}
-                <div className="mt-6 flex items-center gap-4 justify-end">
-                    <span className="text-sm font-medium">Quality</span>
-
-                    <input
-                    type="range"
-                    min="40"
-                    max="95"
-                    value={quality}
-                    onChange={(e) => setQuality(Number(e.target.value))}
-                    className="w-56 accent-indigo-600"
-                    />
-
-                    <span className="border px-3 py-1 rounded text-sm font-medium">
-                    {quality}
-                    </span>
-                </div>
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium">Quality</span>
+                <input
+                  type="range"
+                  min="40"
+                  max="95"
+                  value={quality}
+                  onChange={(e) => setQuality(Number(e.target.value))}
+                  className="w-56 accent-indigo-600"
+                />
+                <span className="border px-3 py-1 rounded text-sm font-medium">
+                  {quality}
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Compress button */}
           <div className="text-center">
             <button
               onClick={compress}
@@ -207,7 +260,6 @@ export default function ImageCompressor() {
         </>
       )}
 
-      {/* RESULT */}
       {zipBlob && (
         <>
           <ImageResultPreview zipBlob={zipBlob} />
