@@ -9,9 +9,49 @@ import { promisify } from "util";
 import { PDFDocument } from "pdf-lib";
 import sharp from "sharp";
 import { jobQueue } from "./queue.js";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 const exec = promisify(execCb);
 const app = express();
+
+/* ================= SECURITY ================= */
+
+// Hide Express fingerprint
+app.disable("x-powered-by");
+
+// Security headers
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+    contentSecurityPolicy: false,
+  })
+);
+
+// Rate limiting (API protection)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use("/api/", apiLimiter);
+
+// CORS (safe but flexible)
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://pdf-tools-fullstack.vercel.app",
+      "https://pdf-tools-fullstack.onrender.com",
+    ],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
+app.use(express.json());
 
 /* ================= CONFIG ================= */
 
@@ -28,7 +68,7 @@ app.get("/api/health", (req, res) => {
 
 const upload = multer({
   dest: "uploads/",
-  limits: { fileSize: 10 * 10240 * 10240 },
+  limits: { fileSize: 20 * 1024 * 1024 },
 });
 
 /* ================= HELPERS ================= */

@@ -5,7 +5,7 @@ import ImageResultPreview from "../components/ImageResultPreview";
 import ProcessingOverlay from "../components/ProcessingOverlay";
 import useProgress from "../hooks/useProgress";
 import { postFile } from "../utils/api";
-import { useNotify } from "../context/NotificationContext"; // ✅ ADDED
+import { useNotify } from "../context/NotificationContext";
 
 const OUTPUT_FORMATS = [
   "jpeg",
@@ -19,12 +19,13 @@ const OUTPUT_FORMATS = [
 ];
 
 const MAX_IMAGES = 20;
+const MAX_SIZE_MB = 20; // ✅ ADDED (speed + UX)
 
 export default function ImageConvert({
   targetFormat = "jpeg",
   title,
   desc,
-  maxText = "Max 20 images per upload. Sign up for more",
+  maxText = "Max 20 images per upload. Max 10MB per image",
 }) {
   const pageTitle = title || "Image Converter";
   const pageDesc =
@@ -36,20 +37,28 @@ export default function ImageConvert({
   const [zipBlob, setZipBlob] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const { notify } = useNotify(); // ✅ ADDED
+  const { notify } = useNotify();
 
-  const {
-    visible,
-    progress,
-    text,
-    start,
-    finish,
-    stop,
-  } = useProgress();
+  const { visible, progress, text, start, finish, stop } = useProgress();
 
+  /* ================= ADD FILES ================= */
   const addFiles = (files) => {
+    // 🔒 Max images check
     if (items.length + files.length > MAX_IMAGES) {
       notify("warning", "Maximum 20 images allowed per upload");
+      return;
+    }
+
+    // 🔒 File size check (NEW)
+    const oversized = files.find(
+      (f) => f.size > MAX_SIZE_MB * 1024 * 1024
+    );
+
+    if (oversized) {
+      notify(
+        "error",
+        `File "${oversized.name}" exceeds ${MAX_SIZE_MB}MB limit`
+      );
       return;
     }
 
@@ -61,12 +70,12 @@ export default function ImageConvert({
     setItems((prev) => [...prev, ...mapped]);
   };
 
+  /* ================= UPDATE OUTPUT ================= */
   const updateOutput = (index, value) => {
-    // ⚠️ SVG warning
     if (value === "svg") {
       notify(
         "info",
-        "SVG conversion works best for simple images (logos, icons)"
+        "SVG works best for logos & icons. Photos may fail."
       );
     }
 
@@ -81,7 +90,7 @@ export default function ImageConvert({
     if (value === "svg") {
       notify(
         "info",
-        "SVG is vector format – photos may not convert accurately"
+        "SVG is a vector format – raster images may not convert"
       );
     }
 
@@ -93,6 +102,7 @@ export default function ImageConvert({
     setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
+  /* ================= CONVERT ================= */
   const handleConvert = async () => {
     if (items.length === 0) {
       notify("warning", "Please upload at least one image");
@@ -118,10 +128,9 @@ export default function ImageConvert({
     } catch (err) {
       stop();
 
-      // 🎯 Backend error handling
       const msg =
         err?.message?.includes("svg")
-          ? "SVG conversion failed for this image"
+          ? "SVG conversion failed for one or more images"
           : "Image conversion failed. Try another format.";
 
       notify("error", msg);
@@ -156,45 +165,28 @@ export default function ImageConvert({
       {items.length > 0 && !zipBlob && !visible && (
         <div className="bg-white rounded-xl border shadow-sm">
           <div className="p-4 border-b flex items-center justify-between">
-            <div>
-              <button
-                onClick={() =>
-                  document.getElementById("addMoreImages").click()
-                }
-                className="text-blue-600 font-medium flex items-center gap-1"
-              >
-                ➕ Add more images
-              </button>
+            <button
+              onClick={() =>
+                document.getElementById("addMoreImages").click()
+              }
+              className="text-blue-600 font-medium"
+            >
+              ➕ Add more images
+            </button>
 
-              <input
-                id="addMoreImages"
-                type="file"
-                accept="image/*"
-                multiple
-                hidden
-                onChange={(e) => addFiles([...e.target.files])}
-              />
-            </div>
-
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-gray-600">
-                Convert all images to:
-              </span>
-
-              <select
-                value={commonOutput}
-                onChange={(e) =>
-                  applyCommonOutput(e.target.value)
-                }
-                className="border rounded px-3 py-2 font-medium"
-              >
-                {OUTPUT_FORMATS.map((f) => (
-                  <option key={f} value={f}>
-                    {f.toUpperCase()}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={commonOutput}
+              onChange={(e) =>
+                applyCommonOutput(e.target.value)
+              }
+              className="border rounded px-3 py-2 font-medium"
+            >
+              {OUTPUT_FORMATS.map((f) => (
+                <option key={f} value={f}>
+                  {f.toUpperCase()}
+                </option>
+              ))}
+            </select>
           </div>
 
           {items.map((item, i) => (
@@ -202,7 +194,7 @@ export default function ImageConvert({
               key={i}
               className="flex items-center justify-between px-4 py-3 border-b"
             >
-              <div className="text-left">
+              <div>
                 <div className="font-medium text-sm">
                   {item.file.name}
                 </div>
@@ -236,10 +228,10 @@ export default function ImageConvert({
             </div>
           ))}
 
-          <div className="flex items-center justify-between px-4 py-4 bg-gray-50">
-            <div className="text-sm">
+          <div className="flex justify-between px-4 py-4 bg-gray-50">
+            <span className="text-sm">
               Convert {items.length} / {MAX_IMAGES} images
-            </div>
+            </span>
 
             <button
               onClick={handleConvert}
