@@ -11,19 +11,9 @@ import sharp from "sharp";
 import { jobQueue } from "./queue.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import * as Sentry from "@sentry/node";
 
 const exec = promisify(execCb);
 const app = express();
-
-/* ================= SENTRY ================= */
-
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 0.3,
-});
-
-app.use(Sentry.Handlers.requestHandler());
 
 /* ================= SECURITY ================= */
 
@@ -38,8 +28,17 @@ app.use(
   })
 );
 
-/* ================= CORS ================= */
+// Rate limiting (API protection)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
+app.use("/api/", apiLimiter);
+
+// CORS (safe but flexible)
 app.use(
   cors({
     origin: [
@@ -54,35 +53,10 @@ app.use(
 
 app.use(express.json());
 
-/* ================= RATE LIMIT ================= */
+/* ================= CONFIG ================= */
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    error: true,
-    code: "RATE_LIMIT_EXCEEDED",
-    message: "Too many requests. Please try again later.",
-  },
-});
-
-app.use("/api/", limiter);
-
-/* ================= UPLOAD DIR SAFETY ================= */
-
-const UPLOAD_DIR = "uploads";
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR);
-}
-
-/* ================= MULTER ================= */
-
-const upload = multer({
-  dest: UPLOAD_DIR,
-  limits: { fileSize: 20 * 1024 * 1024 },
-});
+app.use(cors());
+app.use(express.json());
 
 /* ================= HEALTH ================= */
 
@@ -90,7 +64,16 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// ❌ BLOCK Raster → SVG
+/* ================= MULTER ================= */
+
+const upload = multer({
+  dest: "uploads/",
+  limits: { fileSize: 20 * 1024 * 1024 },
+});
+
+/* ================= HELPERS ================= */
+
+// BLOCK Raster → SVG
 function isRasterToSvg(file, targetFormat) {
   return (
     targetFormat === "svg" &&
