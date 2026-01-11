@@ -11,11 +11,19 @@ import sharp from "sharp";
 import { jobQueue } from "./queue.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import * as Sentry from "@sentry/node";
 
 const exec = promisify(execCb);
 const app = express();
 
 /* ================= SECURITY ================= */
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 0.3,
+});
+
+app.use(Sentry.Handlers.requestHandler());
 
 // Hide Express fingerprint
 app.disable("x-powered-by");
@@ -29,14 +37,19 @@ app.use(
 );
 
 // Rate limiting (API protection)
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 300,
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per IP
   standardHeaders: true,
   legacyHeaders: false,
+  message: {
+    error: true,
+    code: "RATE_LIMIT_EXCEEDED",
+    message: "Too many requests. Please try again later.",
+  },
 });
 
-app.use("/api/", apiLimiter);
+app.use("/api/", limiter);
 
 // CORS (safe but flexible)
 app.use(

@@ -5,6 +5,7 @@
         "start": "node src/server.js"
     },
     "dependencies": {
+        "@sentry/node": "^10.32.1",
         "archiver": "^7.0.1",
         "bullmq": "^5.66.4",
         "child_process": "^1.0.2",
