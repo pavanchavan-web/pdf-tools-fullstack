@@ -421,53 +421,80 @@ app.post("/api/pdf-image-extract", upload.single("file"), async (req, res) => {
 /* ================= IMAGE COMPRESS ================= */
 app.post("/api/image-compress", upload.array("files", 20), async (req, res) => {
   try {
+    const quality = Math.min(
+      99,
+      Math.max(20, Number(req.body.quality) || 80)
+    );
+
+    const format = req.body.format || "webp";
+    const keepOriginal = req.body.keepOriginal === "true";
+
     const zipBuffer = await jobQueue.add(async () => {
       const zip = archiver("zip");
       const chunks = [];
-      zip.on("data", d => chunks.push(d));
+      zip.on("data", (d) => chunks.push(d));
 
       let successCount = 0;
       let skippedCount = 0;
 
-      for (const file of req.files) {
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+
         try {
-          // ❌ Skip BMP images (Sharp limitation)
+          // ❌ Skip BMP (Sharp limitation)
           if (file.mimetype === "image/bmp") {
             skippedCount++;
             fs.unlinkSync(file.path);
             continue;
           }
 
-          const buffer = await sharp(file.path)
-            .resize({ width: 2000, withoutEnlargement: true })
-            .webp({ quality: 75 })
+          const input = sharp(file.path).resize({
+            width: 2000,
+            withoutEnlargement: true,
+          });
+
+          // ✅ Decide output format
+          let outputFormat;
+          if (keepOriginal) {
+            outputFormat = file.mimetype.split("/")[1];
+          } else {
+            outputFormat = format;
+          }
+
+          // ❌ Sharp does not support "original"
+          if (!outputFormat || outputFormat === "original") {
+            outputFormat = "webp";
+          }
+
+          const buffer = await input
+            .toFormat(outputFormat, { quality })
             .toBuffer();
 
-          zip.append(buffer, {
-            name: `${path.parse(file.originalname).name}-compressed.webp`,
-          });
+          const base = path.parse(file.originalname).name;
+          const uniqueName = `${base}-${Date.now()}-${i}.${outputFormat}`;
+
+          zip.append(buffer, { name: uniqueName });
 
           successCount++;
           fs.unlinkSync(file.path);
         } catch (innerErr) {
-          // Skip broken images safely
           skippedCount++;
           fs.unlinkSync(file.path);
         }
       }
 
-      // ❌ If nothing was compressed → hard error
+      // ❌ If nothing succeeded → real error
       if (successCount === 0) {
         throw new Error(
           "No supported images found. BMP images are not supported."
         );
       }
 
-      // ℹ️ Optional info file inside ZIP
+      // ℹ️ Info file if partial success
       if (skippedCount > 0) {
         zip.append(
           Buffer.from(
-            `${skippedCount} image(s) were skipped (unsupported format)`
+            `${skippedCount} image(s) were skipped due to unsupported format.`
           ),
           { name: "INFO.txt" }
         );
@@ -493,6 +520,7 @@ app.post("/api/image-compress", upload.array("files", 20), async (req, res) => {
     });
   }
 });
+
 
 /* ================= START ================= */
 app.listen(5000, () => {
