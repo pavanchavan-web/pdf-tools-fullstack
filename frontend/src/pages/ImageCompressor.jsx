@@ -3,8 +3,8 @@ import ToolLayout from "../components/ToolLayout";
 import UploadBox from "../components/UploadBox";
 import ImageResultPreview from "../components/ImageResultPreview";
 import BeforeAfterCompare from "../components/BeforeAfterCompare";
-import ProcessingOverlay from "../components/ProcessingOverlay"; // ✅ ADDED
-import useProgress from "../hooks/useProgress"; // ✅ ADDED
+import ProcessingOverlay from "../components/ProcessingOverlay";
+import useProgress from "../hooks/useProgress";
 import { postFile } from "../utils/api";
 import { useNotify } from "../context/NotificationContext";
 
@@ -15,7 +15,7 @@ export default function ImageCompressor() {
   const [files, setFiles] = useState([]);
   const [zipBlob, setZipBlob] = useState(null);
 
-  const [quality, setQuality] = useState(74);
+  const [quality, setQuality] = useState(80); // ✅ better default
   const [format, setFormat] = useState("webp");
   const [keepOriginal, setKeepOriginal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -25,17 +25,7 @@ export default function ImageCompressor() {
   const [afterSrc, setAfterSrc] = useState(null);
 
   const { notify } = useNotify();
-
-  // 🔥 Progress system (SAME AS ImageConvert)
   const { visible, progress, text, start, finish, stop } = useProgress();
-
-  /* -------------------------------
-     Keep original format handling
-  --------------------------------*/
-  useEffect(() => {
-    if (keepOriginal) setFormat("original");
-    else if (format === "original") setFormat("webp");
-  }, [keepOriginal]);
 
   /* -------------------------------
      Preview update
@@ -45,11 +35,12 @@ export default function ImageCompressor() {
 
     const file = files[activeIndex];
     const url = URL.createObjectURL(file);
+
     setBeforeSrc(url);
     setAfterSrc(url);
 
     return () => URL.revokeObjectURL(url);
-  }, [files, activeIndex, quality, format]);
+  }, [files, activeIndex, quality, format, keepOriginal]);
 
   /* -------------------------------
      Helpers
@@ -71,7 +62,6 @@ export default function ImageCompressor() {
     }
 
     const unsupported = newFiles.filter((f) => f.type === "image/bmp");
-
     if (unsupported.length) {
       notify(
         "warning",
@@ -80,7 +70,6 @@ export default function ImageCompressor() {
     }
 
     const supported = newFiles.filter((f) => f.type !== "image/bmp");
-
     if (!supported.length) {
       notify("error", "No supported images to compress");
       return;
@@ -90,7 +79,7 @@ export default function ImageCompressor() {
   };
 
   /* -------------------------------
-     Compress (FINAL action)
+     Compress
   --------------------------------*/
   const compress = async () => {
     if (!files.length) {
@@ -104,13 +93,14 @@ export default function ImageCompressor() {
     try {
       const formData = new FormData();
       files.forEach((f) => formData.append("files", f));
+
       formData.append("quality", quality);
-      formData.append("format", format);
-      formData.append("keepOriginal", keepOriginal);
+      formData.append("format", format); // ✅ real format only
+      formData.append("keepOriginal", keepOriginal); // ✅ boolean
 
       const blob = await postFile("image-compress", formData);
 
-      finish(); // ✅ Progress → 100%
+      finish();
       setZipBlob(blob);
 
       notify(
@@ -131,6 +121,9 @@ export default function ImageCompressor() {
     setActiveIndex(0);
     setBeforeSrc(null);
     setAfterSrc(null);
+    setQuality(80);
+    setFormat("webp");
+    setKeepOriginal(false);
   };
 
   const originalSizeKB = files[activeIndex]
@@ -152,12 +145,7 @@ export default function ImageCompressor() {
       title="AI Image Compressor"
       description="Compress images intelligently with live preview and quality control"
     >
-      {/* 🔄 Progress Overlay (ADDED) */}
-      <ProcessingOverlay
-        visible={visible}
-        progress={progress}
-        text={text}
-      />
+      <ProcessingOverlay visible={visible} progress={progress} text={text} />
 
       {!files.length && !zipBlob && !visible && (
         <UploadBox
@@ -199,24 +187,6 @@ export default function ImageCompressor() {
             ))}
           </div>
 
-          <button
-            onClick={() =>
-              document.getElementById("addMoreCompress").click()
-            }
-            className="text-blue-600 font-medium mb-4"
-          >
-            ➕ Add more images
-          </button>
-
-          <input
-            id="addMoreCompress"
-            type="file"
-            accept="image/*"
-            multiple
-            hidden
-            onChange={(e) => addFiles([...e.target.files])}
-          />
-
           <div className="bg-white border rounded-xl p-4 mb-6">
             <div className="flex flex-wrap gap-6 items-center justify-between">
               <div>
@@ -247,8 +217,8 @@ export default function ImageCompressor() {
                 <span className="text-sm font-medium">Quality</span>
                 <input
                   type="range"
-                  min="40"
-                  max="95"
+                  min="20"   // ✅ FIXED
+                  max="99"   // ✅ FIXED
                   value={quality}
                   onChange={(e) => setQuality(Number(e.target.value))}
                   className="w-56 accent-indigo-600"
@@ -275,7 +245,6 @@ export default function ImageCompressor() {
       {zipBlob && (
         <>
           <ImageResultPreview zipBlob={zipBlob} />
-
           <div className="mt-6 flex justify-center gap-4">
             <a
               href={URL.createObjectURL(zipBlob)}
@@ -284,11 +253,7 @@ export default function ImageCompressor() {
             >
               ⬇️ Download ZIP
             </a>
-
-            <button
-              onClick={reset}
-              className="border px-6 py-3 rounded-lg"
-            >
+            <button onClick={reset} className="border px-6 py-3 rounded-lg">
               🔄 Compress more
             </button>
           </div>
