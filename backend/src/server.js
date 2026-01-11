@@ -16,8 +16,6 @@ import * as Sentry from "@sentry/node";
 const exec = promisify(execCb);
 const app = express();
 
-
-
 /* ================= SENTRY ================= */
 
 Sentry.init({
@@ -40,29 +38,8 @@ app.use(
   })
 );
 
-/* ================= UPLOAD DIR SAFETY ================= */
+/* ================= CORS ================= */
 
-const UPLOAD_DIR = "uploads";
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR);
-}
-
-// Rate limiting (API protection)
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per IP
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    error: true,
-    code: "RATE_LIMIT_EXCEEDED",
-    message: "Too many requests. Please try again later.",
-  },
-});
-
-app.use("/api/", limiter);
-
-// CORS (safe but flexible)
 app.use(
   cors({
     origin: [
@@ -77,25 +54,41 @@ app.use(
 
 app.use(express.json());
 
-/* ================= CONFIG ================= */
+/* ================= RATE LIMIT ================= */
 
-app.use(cors());
-app.use(express.json());
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: true,
+    code: "RATE_LIMIT_EXCEEDED",
+    message: "Too many requests. Please try again later.",
+  },
+});
+
+app.use("/api/", limiter);
+
+/* ================= UPLOAD DIR SAFETY ================= */
+
+const UPLOAD_DIR = "uploads";
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR);
+}
+
+/* ================= MULTER ================= */
+
+const upload = multer({
+  dest: UPLOAD_DIR,
+  limits: { fileSize: 20 * 1024 * 1024 },
+});
 
 /* ================= HEALTH ================= */
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
-
-/* ================= MULTER ================= */
-
-const upload = multer({
-  dest: "uploads/",
-  limits: { fileSize: 20 * 1024 * 1024 },
-});
-
-/* ================= HELPERS ================= */
 
 // ❌ BLOCK Raster → SVG
 function isRasterToSvg(file, targetFormat) {
