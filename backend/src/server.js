@@ -16,7 +16,9 @@ import * as Sentry from "@sentry/node";
 const exec = promisify(execCb);
 const app = express();
 
-/* ================= SECURITY ================= */
+
+
+/* ================= SENTRY ================= */
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -24,6 +26,8 @@ Sentry.init({
 });
 
 app.use(Sentry.Handlers.requestHandler());
+
+/* ================= SECURITY ================= */
 
 // Hide Express fingerprint
 app.disable("x-powered-by");
@@ -35,6 +39,13 @@ app.use(
     contentSecurityPolicy: false,
   })
 );
+
+/* ================= UPLOAD DIR SAFETY ================= */
+
+const UPLOAD_DIR = "uploads";
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR);
+}
 
 // Rate limiting (API protection)
 const limiter = rateLimit({
