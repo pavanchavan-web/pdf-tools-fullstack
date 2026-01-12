@@ -345,17 +345,6 @@ nav a:hover {
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-}
-
 @layer utilities {
   .text-gradient {
     @apply bg-clip-text text-transparent;
