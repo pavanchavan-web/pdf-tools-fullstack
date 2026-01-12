@@ -19,19 +19,19 @@ const HeroSection = () => {
           </div>
 
           {/* Headline */}
-          <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl animate-fade-in [animation-delay:100ms] opacity-0">
+          <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl animate-fade-in [animation-delay:100ms] ">
             Every PDF Tool You Need,{" "}
             <span className="text-gradient">All in One Place</span>
           </h1>
 
           {/* Subtext */}
-          <p className="mb-10 text-lg text-muted-foreground md:text-xl max-w-2xl mx-auto animate-fade-in [animation-delay:200ms] opacity-0">
+          <p className="mb-10 text-lg text-muted-foreground md:text-xl max-w-2xl mx-auto animate-fade-in [animation-delay:200ms]">
             Merge, split, compress, convert, rotate, unlock and watermark PDFs with
             just a few clicks. 100% free and secure.
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:300ms] opacity-0">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:300ms] ">
             <Button
               size="lg"
               className="btn-gradient text-primary-foreground border-0 gap-2 px-8 h-12 text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
