@@ -14,7 +14,7 @@ import Convert2SVG from "../assets/tools/15.svg";
 import Convert2WEBP from "../assets/tools/10.svg";
 import Convert2JPEG from "../assets/tools/11.svg";
 import BG from "../assets/bg.webp";
-import HeroSection from "@/components/HeroSection";
+import HeroSection from "../components/HeroSection";
 
 export default function Home() {
   const [openIndex, setOpenIndex] = useState(0);
