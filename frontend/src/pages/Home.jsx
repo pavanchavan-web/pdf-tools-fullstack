@@ -15,7 +15,7 @@ import Convert2WEBP from "../assets/tools/10.svg";
 import Convert2JPEG from "../assets/tools/11.svg";
 import BG from "../assets/bg.webp";
 import { ArrowRight, Upload } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../components/ui/button";
 
 
 export default function Home() {
