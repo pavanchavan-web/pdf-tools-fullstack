@@ -215,7 +215,7 @@ export default function Home() {
         </p>
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:300ms] ">
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:300ms] ">
           <Button
             size="lg"
             onClick={() => document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" })}
@@ -237,7 +237,7 @@ export default function Home() {
         </div>
 
         {/* Trust indicators */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground animate-fade-in [animation-delay:400ms] opacity-0">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground animate-fade-in [animation-delay:400ms]">
           <div className="flex items-center gap-2">
             <svg className="h-5 w-5 text-tool-green" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -257,7 +257,7 @@ export default function Home() {
             <span>Works on any device</span>
           </div>
         </div>
-        
+
       </section>
 
       {/* ================= TOOLS GRID ================= */}
