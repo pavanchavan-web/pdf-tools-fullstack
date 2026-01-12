@@ -219,7 +219,7 @@ export default function Home() {
           <Button
             size="lg"
             onClick={() => document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" })}
-            className="btn-gradient text-primary-foreground border-0 gap-2 px-8 h-12 text-[20px] font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
+            className="btn-gradient text-primary-foreground border-0 gap-2 px-8 h-12 text-[18px] font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
           >
             <Upload className="h-5 w-5" />
             Select PDF File
@@ -229,7 +229,7 @@ export default function Home() {
             variant="outline"
             size="lg"
             onClick={() => document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" })}
-            className="gap-2 h-12 text-base font-medium text-[20px]"
+            className="gap-2 h-12 text-base font-medium text-[18px]"
           >
             See All Tools
             <ArrowRight className="h-4 w-4" />
@@ -261,7 +261,7 @@ export default function Home() {
       </section>
 
       {/* ================= TOOLS GRID ================= */}
-      <section id="tools" className="py-20 relative bg-gradient-to-b from-orange-50 to-white">
+      <section id="tools" className="py-20 relative bg-grey-400">
         <div className="max-w-7xl mx-auto px-1 md:px-6">
           <h2 className="mb-2 text-center">
             Popular Free Tools

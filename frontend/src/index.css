@@ -83,7 +83,7 @@ label {
 }
 
 p {
-  font-size: 18px;
+  font-size: 19px;
   line-height: 1.6rem;
 }
 
@@ -261,6 +261,10 @@ nav a:hover {
   color:#22c378;
 }
 
+.bg-primary{
+   color: #4f46e5;
+}
+
 .bg-secondary{
-  background-color: #f3f4f6;
+  background-color: #4f46e51c;
 }
