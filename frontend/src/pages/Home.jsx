@@ -218,7 +218,7 @@ export default function Home() {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:300ms] ">
           <Button
             size="lg"
-            onClick={() => document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" })}
+            onClick={() => (window.location.href = "/compress-pdf")}
             className="btn-gradient text-primary-foreground border-0 gap-2 px-8 h-12 text-[18px] font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
           >
             <Upload className="h-5 w-5" />
