@@ -261,7 +261,7 @@ export default function Home() {
       </section>
 
       {/* ================= TOOLS GRID ================= */}
-      <section id="tools" className="py-20 relative bg-[#f9f9fa]">
+      <section id="tools" className="py-20 relative bg-gradient-to-b from-blue-50 to-white">
         <div className="max-w-7xl mx-auto px-1 md:px-6">
           <h2 className="mb-2 text-center">
             Popular Free Tools
