@@ -10,13 +10,16 @@
     "@clerk/nextjs": "^6.36.5",
     "@emailjs/browser": "^4.4.1",
     "@radix-ui/react-slot": "^1.2.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "jszip": "^3.10.1",
     "lucide-react": "^0.562.0",
     "pdfjs-dist": "^5.4.530",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^7.11.0"
+    "react-router-dom": "^7.11.0",
+    "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
