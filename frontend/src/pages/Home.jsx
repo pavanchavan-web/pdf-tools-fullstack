@@ -14,7 +14,8 @@ import Convert2SVG from "../assets/tools/15.svg";
 import Convert2WEBP from "../assets/tools/10.svg";
 import Convert2JPEG from "../assets/tools/11.svg";
 import BG from "../assets/bg.webp";
-import HeroSection from "../components/HeroSection";
+import { Button } from "../components/ui/button";
+import { Upload, ArrowRight } from "lucide-react";
 
 export default function Home() {
   const [openIndex, setOpenIndex] = useState(0);
@@ -192,6 +193,13 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-slate-50 text-gray-800">
       {/* ================= HERO ================= */}
       <section className="relative bg-gradient-to-b from-blue-50 to-orange-50 py-[7rem] text-center">
+
+        {/* Badge */}
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-1.5 text-sm font-medium text-secondary-foreground animate-fade-in">
+          <span className="flex h-2 w-2 rounded-full bg-primary" />
+          Trusted by 1M+ users worldwide
+        </div>
+
         <h1 className="leading-tight">
           All the {" "}
           <span className="text-indigo-600 font-bold">
@@ -206,15 +214,51 @@ export default function Home() {
           — right in your browser.
         </p>
 
-        <div className="mt-8 flex justify-center gap-4">
-          <button className="btn-primary-Custom text-white px-6 py-3 rounded-full hover:bg-blue-900 hover:shadow-md"
-            onClick={() => document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" })}>
-            Explore All Tools
-          </button>
-        </div>
-      </section>
+        {/* CTAs */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:300ms] ">
+          <Button
+            size="lg"
+            onClick={() => document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" })}
+            className="btn-gradient text-primary-foreground border-0 gap-2 px-8 h-12 text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
+          >
+            <Upload className="h-5 w-5" />
+            Select PDF File
+          </Button>
 
-      <HeroSection />
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" })}
+            className="gap-2 h-12 text-base font-medium"
+          >
+            See All Tools
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Trust indicators */}
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground animate-fade-in [animation-delay:400ms] opacity-0">
+          <div className="flex items-center gap-2">
+            <svg className="h-5 w-5 text-tool-green" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span>No file size limits</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <svg className="h-5 w-5 text-tool-green" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span>Secure & private</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <svg className="h-5 w-5 text-tool-green" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span>Works on any device</span>
+          </div>
+        </div>
+        
+      </section>
 
       {/* ================= TOOLS GRID ================= */}
       <section id="tools" className="py-20 relative bg-gradient-to-b from-orange-50 to-white">
