@@ -83,7 +83,7 @@ label {
 }
 
 p {
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.6rem;
 }
 
@@ -255,4 +255,12 @@ nav a:hover {
 .btn-gradient{
   background-color: #2563eb;
   color: white
+}
+
+.text-tool-green{
+  color:#22c378;
+}
+
+.bg-secondary{
+  background-color: #f3f4f6;
 }

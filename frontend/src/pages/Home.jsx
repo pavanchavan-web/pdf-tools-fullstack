@@ -215,11 +215,11 @@ export default function Home() {
         </p>
 
         {/* CTAs */}
-        <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:300ms] ">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in [animation-delay:300ms] ">
           <Button
             size="lg"
             onClick={() => document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" })}
-            className="btn-gradient text-primary-foreground border-0 gap-2 px-8 h-12 text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
+            className="btn-gradient text-primary-foreground border-0 gap-2 px-8 h-12 text-[20px] font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
           >
             <Upload className="h-5 w-5" />
             Select PDF File
@@ -229,7 +229,7 @@ export default function Home() {
             variant="outline"
             size="lg"
             onClick={() => document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" })}
-            className="gap-2 h-12 text-base font-medium"
+            className="gap-2 h-12 text-base font-medium text-[20px]"
           >
             See All Tools
             <ArrowRight className="h-4 w-4" />
