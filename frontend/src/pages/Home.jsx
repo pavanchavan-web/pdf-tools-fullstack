@@ -261,7 +261,7 @@ export default function Home() {
       </section>
 
       {/* ================= TOOLS GRID ================= */}
-      <section id="tools" className="py-20 relative bg-grey-400">
+      <section id="tools" className="py-20 relative bg-white">
         <div className="max-w-7xl mx-auto px-1 md:px-6">
           <h2 className="mb-2 text-center">
             Popular Free Tools
@@ -282,7 +282,7 @@ export default function Home() {
           border transition-all
           ${activeCategory === cat
                       ? "bg-gray-900 text-white border-gray-900"
-                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                      : "bg-[#f9f9fa] text-gray-700 border-gray-300 hover:bg-gray-100"
                     }
         `}
                 >
@@ -298,7 +298,7 @@ export default function Home() {
                 key={tool.title}
                 to={tool.path}
                 className="
-            group relative rounded-2xl bg-white border
+            group relative rounded-2xl bg-[#f9f9fa] border
             p-5 transition-all duration-300
             hover:-translate-y-1 hover:shadow-xl
             hover:border-indigo-500 shadow-soft
