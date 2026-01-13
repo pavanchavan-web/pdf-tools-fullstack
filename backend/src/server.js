@@ -15,6 +15,9 @@ import rateLimit from "express-rate-limit";
 const exec = promisify(execCb);
 const app = express();
 
+/* TRUST PROXY (REQUIRED FOR RENDER / VERCEL) */
+app.set("trust proxy", 1);
+
 sharp.cache(false);
 sharp.concurrency(2);
 
