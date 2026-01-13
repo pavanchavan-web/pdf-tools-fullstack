@@ -15,7 +15,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" >
-           <img src={logo} alt="Logo" className="w-[150px] h-auto"/>
+          <img src={logo} alt="Logo" className="w-[150px] h-auto" />
         </Link>
 
         {/* Nav */}
@@ -29,33 +29,31 @@ export default function Header() {
 
         {/* Auth */}
         <div className="flex gap-3 justify-center items-center">
-        <SignedOut>
-          <Link to="/sign-in" className="text-d font-medium hover:text-indigo-700">
-            Login
-          </Link>
+          <SignedOut>
+            <Link to="/sign-in" className="text-d font-medium hover:text-indigo-700">
+              Login
+            </Link>
 
-          <Link
-            to="/sign-up"
-            className="ml-3 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
-            Sign up
-          </Link>
-        </SignedOut>
+            <Link
+              to="/sign-up"
+              className="ml-3 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+              Sign up
+            </Link>
+          </SignedOut>
 
-        {/* When logged IN */}
+          {/* When logged IN */}
           <SignedIn>
             {isLoaded && (
               <div className="flex items-center gap-2">
                 <UserButton afterSignOutUrl="/" />
-                
+
                 <span className="text-md text-gray-500">
                   Hi, <strong>{user?.firstName || "User"}</strong>
                 </span>
-                
+
               </div>
             )}
           </SignedIn>
-
-        
         </div>
       </div>
     </header>

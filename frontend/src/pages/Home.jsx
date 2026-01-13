@@ -169,7 +169,7 @@ export default function Home() {
   ]
 
   useEffect(() => {
-    document.title = "";
+    document.title = "Free PDF & Image Tools Online";
   }, []);
 
   const categories = [
