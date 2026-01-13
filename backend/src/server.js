@@ -15,6 +15,9 @@ import rateLimit from "express-rate-limit";
 const exec = promisify(execCb);
 const app = express();
 
+sharp.cache(false);
+sharp.concurrency(2);
+
 /* ================= SECURITY ================= */
 
 // Hide Express fingerprint
@@ -53,10 +56,6 @@ app.use(
 
 app.use(express.json());
 
-/* ================= CONFIG ================= */
-
-app.use(cors());
-app.use(express.json());
 
 /* ================= HEALTH ================= */
 
