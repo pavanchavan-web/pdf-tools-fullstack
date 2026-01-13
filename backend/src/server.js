@@ -50,7 +50,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://pdf-tools-fullstack.vercel.app",
-      "https://pdf-tools-fullstack.onrender.com",
+      "https://pdf-tools-fullstack-xi.vercel.app",
     ],
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
