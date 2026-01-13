@@ -1,4 +1,4 @@
-const API_BASE = "https://pdf-tools-fullstack-1.onrender.com/api";
+const API_BASE = "https://pdf-tools-fullstack-backend.onrender.com/api";
 
 /**
  * 🔹 LEGACY SUPPORT (DO NOT REMOVE)
@@ -49,7 +49,7 @@ export async function getJobStatus(jobId) {
 
 export async function downloadResult(filePath) {
   const res = await fetch(
-    `https://pdf-tools-fullstack-1.onrender.com/${filePath}`
+    `https://pdf-tools-fullstack-backend.onrender.com/${filePath}`
   );
 
   if (!res.ok) throw new Error("Download failed");
