@@ -45,15 +45,23 @@ const apiLimiter = rateLimit({
 app.use("/api/", apiLimiter);
 
 // CORS (safe but flexible)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://pdf-tools-fullstack.vercel.app",
+  "https://pdf-tools-fullstack.onrender.com",
+  "https://convertzip.com",
+  "https://www.convertzip.com",
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://pdf-tools-fullstack.vercel.app",
-      "https://pdf-tools-fullstack-xi.vercel.app",
-    ],
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
   })
 );
 
