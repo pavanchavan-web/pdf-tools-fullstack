@@ -38,7 +38,7 @@ export default function App() {
     if (!sessionStorage.getItem("backend-warmed")) {
       notify(
         "info",
-        "Waking up server… This may take a few seconds."
+        "Welcome! Getting things ready…"
       );
 
       warmUpBackend().finally(() => {
