@@ -1,6 +1,10 @@
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react"
+import { SpeedInsights } from "@vercel/speed-insights/react";
+import { warmUpBackend } from "./utils/warmup";
+import { useNotify } from "./context/NotificationContext";
+
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import MergePdf from "./pages/MergePdf";
@@ -23,11 +27,26 @@ import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
 import TermsConditions from "./pages/legal/TermsConditions";
 import Security from "./pages/legal/Security";
 import CookiesPolicy from "./pages/legal/CookiesPolicy";
-import Contact from "./pages/Contact"
-import AboutUs from "./pages/AboutUs"
-
+import Contact from "./pages/Contact";
+import AboutUs from "./pages/AboutUs";
 
 export default function App() {
+  const { notify } = useNotify();
+
+  useEffect(() => {
+    // Show message once per session
+    if (!sessionStorage.getItem("backend-warmed")) {
+      notify(
+        "info",
+        "Waking up server… This may take a few seconds."
+      );
+
+      warmUpBackend().finally(() => {
+        sessionStorage.setItem("backend-warmed", "true");
+      });
+    }
+  }, []);
+
   return (
     <>
       <Layout>
@@ -57,8 +76,9 @@ export default function App() {
           <Route path="/about-us" element={<AboutUs />} />
         </Routes>
       </Layout>
+
       <Analytics />
-      <SpeedInsights/>
+      <SpeedInsights />
     </>
   );
 }
