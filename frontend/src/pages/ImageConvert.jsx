@@ -147,127 +147,137 @@ export default function ImageConvert({
   };
 
   return (
-    <ToolLayout title={pageTitle} description={pageDesc}>
-      <ProcessingOverlay visible={visible} progress={progress} text={text} />
+    <>
+      {/* ================= SEO ================= */}
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <meta name="keywords" content={pageKeywords} />
+      </Helmet>
+       
+      {/* ================= TOOL LAYOUT ================= */}
+      <ToolLayout title={pageTitle} description={pageDesc}>
+        <ProcessingOverlay visible={visible} progress={progress} text={text} />
 
-      {items.length === 0 && !zipBlob && !visible && (
-        <UploadBox
-          accept="image/*"
-          multiple
-          maxText={maxText}
-          onFiles={addFiles}
-        />
-      )}
+        {items.length === 0 && !zipBlob && !visible && (
+          <UploadBox
+            accept="image/*"
+            multiple
+            maxText={maxText}
+            onFiles={addFiles}
+          />
+        )}
 
-      {items.length > 0 && !zipBlob && !visible && (
-        <div className="bg-white rounded-xl border shadow-sm">
-          <div className="p-4 border-b flex items-center justify-between">
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="text-blue-600 font-medium"
-            >
-              ➕ Add more images
-            </button>
+        {items.length > 0 && !zipBlob && !visible && (
+          <div className="bg-white rounded-xl border shadow-sm">
+            <div className="p-4 border-b flex items-center justify-between">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="text-blue-600 font-medium"
+              >
+                ➕ Add more images
+              </button>
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              hidden
-              onChange={(e) => addFiles([...e.target.files])}
-            />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                onChange={(e) => addFiles([...e.target.files])}
+              />
 
-            <select
-              value={commonOutput}
-              onChange={(e) => applyCommonOutput(e.target.value)}
-              className="border rounded px-3 py-2 font-medium"
-            >
-              {OUTPUT_FORMATS.map((f) => (
-                <option key={f} value={f}>
-                  {f.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {items.map((item, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between px-4 py-3 border-b"
-            >
-              <div>
-                <div className="font-medium text-sm">
-                  {item.file.name}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {(item.file.size / 1024).toFixed(2)} KB
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <select
-                  value={item.output}
-                  onChange={(e) =>
-                    updateOutput(i, e.target.value)
-                  }
-                  className="border rounded px-2 py-1 text-sm"
-                >
-                  {OUTPUT_FORMATS.map((f) => (
-                    <option key={f} value={f}>
-                      {f.toUpperCase()}
-                    </option>
-                  ))}
-                </select>
-
-                <button
-                  onClick={() => removeItem(i)}
-                  className="text-gray-400 hover:text-red-500"
-                >
-                  ✕
-                </button>
-              </div>
+              <select
+                value={commonOutput}
+                onChange={(e) => applyCommonOutput(e.target.value)}
+                className="border rounded px-3 py-2 font-medium"
+              >
+                {OUTPUT_FORMATS.map((f) => (
+                  <option key={f} value={f}>
+                    {f.toUpperCase()}
+                  </option>
+                ))}
+              </select>
             </div>
-          ))}
 
-          <div className="flex justify-between px-4 py-4 bg-gray-50">
-            <span className="text-sm">
-              Convert {items.length} / {MAX_IMAGES} images
-            </span>
+            {items.map((item, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between px-4 py-3 border-b"
+              >
+                <div>
+                  <div className="font-medium text-sm">
+                    {item.file.name}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {(item.file.size / 1024).toFixed(2)} KB
+                  </div>
+                </div>
 
-            <button
-              onClick={handleConvert}
-              disabled={loading}
-              className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-lg"
-            >
-              {loading ? "Converting..." : "Convert →"}
-            </button>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={item.output}
+                    onChange={(e) =>
+                      updateOutput(i, e.target.value)
+                    }
+                    className="border rounded px-2 py-1 text-sm"
+                  >
+                    {OUTPUT_FORMATS.map((f) => (
+                      <option key={f} value={f}>
+                        {f.toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    onClick={() => removeItem(i)}
+                    className="text-gray-400 hover:text-red-500"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            <div className="flex justify-between px-4 py-4 bg-gray-50">
+              <span className="text-sm">
+                Convert {items.length} / {MAX_IMAGES} images
+              </span>
+
+              <button
+                onClick={handleConvert}
+                disabled={loading}
+                className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-lg"
+              >
+                {loading ? "Converting..." : "Convert →"}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {zipBlob && (
-        <>
-          <ImageResultPreview zipBlob={zipBlob} />
+        {zipBlob && (
+          <>
+            <ImageResultPreview zipBlob={zipBlob} />
 
-          <div className="mt-6 flex justify-center gap-4">
-            <a
-              href={URL.createObjectURL(zipBlob)}
-              download="converted-images.zip"
-              className="bg-green-600 text-white px-6 py-3 rounded-lg"
-            >
-              ⬇️ Download ZIP
-            </a>
+            <div className="mt-6 flex justify-center gap-4">
+              <a
+                href={URL.createObjectURL(zipBlob)}
+                download="converted-images.zip"
+                className="bg-green-600 text-white px-6 py-3 rounded-lg"
+              >
+                ⬇️ Download ZIP
+              </a>
 
-            <button
-              onClick={reset}
-              className="border px-6 py-3 rounded-lg"
-            >
-              🔄 Convert more images
-            </button>
-          </div>
-        </>
-      )}
-    </ToolLayout>
+              <button
+                onClick={reset}
+                className="border px-6 py-3 rounded-lg"
+              >
+                🔄 Convert more images
+              </button>
+            </div>
+          </>
+        )}
+      </ToolLayout>
+    </>
   );
 }
