@@ -27,11 +27,19 @@ export default function ImageConvert({
   desc,
   maxText = "Max 20 images per upload.",
 }) {
-  const pageTitle = title || "Image Converter";
+  /* ================= SEO CONTENT ================= */
+  const pageTitle =
+    title ||
+    "Image Converter Online – Free JPG, PNG, WEBP, AVIF Converter";
+
   const pageDesc =
     desc ||
-    "Convert images between JPG, PNG, WEBP, AVIF, BMP, GIF, SVG and TIFF";
+    "Convert images online for free between JPG, PNG, WEBP, AVIF, BMP, GIF, SVG, and TIFF. Fast, secure image converter with no signup required.";
 
+  const pageKeywords =
+    "image converter online, free image converter, jpg to png converter, png to jpg converter, webp converter, avif image converter, convert images online, bulk image converter";
+
+  /* ================= STATE ================= */
   const [items, setItems] = useState([]);
   const [commonOutput, setCommonOutput] = useState(targetFormat);
   const [zipBlob, setZipBlob] = useState(null);

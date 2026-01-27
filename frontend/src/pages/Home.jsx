@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+
 import MergePDFs from "../assets/tools/1.svg";
 import SplitPDFs from "../assets/tools/3.svg";
 import CompressPDFs from "../assets/tools/2.svg";
@@ -14,11 +16,13 @@ import Convert2SVG from "../assets/tools/15.svg";
 import Convert2WEBP from "../assets/tools/10.svg";
 import Convert2JPEG from "../assets/tools/11.svg";
 import BG from "../assets/bg.webp";
+
 import { Button } from "../components/ui/button";
 import { Upload, ArrowRight } from "lucide-react";
 
 export default function Home() {
   const [openIndex, setOpenIndex] = useState(0);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   const tools = [
     {
@@ -122,9 +126,9 @@ export default function Home() {
     },
     {
       title: "SVG to Others",
-      desc: "Convert SVG to others images format online. Create scalable, lightweight vector graphics for web and design use.",
+      desc: "Convert SVG to other image formats online. Create scalable, lightweight vector graphics for web and design use.",
       category: "image",
-      keywords: "svg converter, convert to svg",
+      keywords: "svg converter, convert svg",
       icon: Convert2SVG,
       path: "/convert-to-svg",
       categories: ["Image Convert", "Image Tools"],
@@ -140,57 +144,56 @@ export default function Home() {
     },
   ];
 
-
-  const faqs = [
-    {
-      q: "Are these tools free to use?",
-      a: "Yes. All tools on our website are completely free to use. You can compress, convert, edit, and secure files without any hidden charges or subscriptions.",
-    },
-    {
-      q: "Do I need to create an account?",
-      a: "No signup required. You can use all tools instantly without registering or logging in.",
-    },
-    {
-      q: "Is my data safe and secure?",
-      a: "Absolutely. All uploaded files are processed securely and automatically deleted from our servers after processing to ensure your privacy.",
-    },
-    {
-      q: "Are my files stored on your servers?",
-      a: "No. Files are temporarily processed and then permanently removed. We do not store, view, or share your files.",
-    },
-    {
-      q: "Can I use these tools on mobile devices?",
-      a: "Yes. Our tools are fully responsive and work smoothly on mobile, tablet, and desktop devices.",
-    },
-    {
-      q: "Can I use these tools for business or commercial purposes?",
-      a: "Yes. You can use our tools for both personal and professional use without restrictions.",
-    },
-  ]
-
-  useEffect(() => {
-    document.title = "Free PDF & Image Tools Online";
-  }, []);
-
   const categories = [
     "All",
     "Image Tools",
     "PDF Tools",
     "Image Compress",
     "Image Convert",
-
   ];
-
-  const [activeCategory, setActiveCategory] = useState("All");
 
   const filteredTools =
     activeCategory === "All"
       ? tools
-      : tools.filter((tool) => tool.categories?.includes(activeCategory));
+      : tools.filter((tool) =>
+          tool.categories?.includes(activeCategory)
+        );
 
+  const faqs = [
+    {
+      q: "Are these tools free to use?",
+      a: "Yes. All tools on our website are completely free to use without hidden charges.",
+    },
+    {
+      q: "Do I need to create an account?",
+      a: "No signup required. Use all tools instantly without registration.",
+    },
+    {
+      q: "Is my data safe?",
+      a: "Yes. Files are processed securely and automatically deleted.",
+    },
+    {
+      q: "Can I use these tools on mobile?",
+      a: "Absolutely. All tools work on mobile, tablet, and desktop.",
+    },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-gray-800">
+      {/* ================= SEO ================= */}
+      <Helmet>
+        <title>
+          Free PDF & Image Tools Online – Merge, Compress, Convert Files
+        </title>
+        <meta
+          name="description"
+          content="Use free online PDF and image tools to merge, split, compress, and convert files instantly. JPG, PNG, WEBP, AVIF, PDF tools with fast, secure, no-signup access."
+        />
+        <meta
+          name="keywords"
+          content="pdf tools online, image tools online, merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools"
+        />
+      </Helmet>
       {/* ================= HERO ================= */}
       <section className="relative bg-gradient-to-b from-blue-50 to-orange-50 py-[7rem] text-center">
 
