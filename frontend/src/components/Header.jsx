@@ -52,7 +52,7 @@ export default function Header() {
 
             <Link
               to="/sign-up"
-              className="hidden sm:inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+              className="sm:inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
             >
               Sign up
             </Link>

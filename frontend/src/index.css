@@ -271,8 +271,7 @@ nav a:hover {
 }
 
 @media (max-width:768px) {
-  h1{font-size: 32px; line-height:42px;}
-  p{font-size: 17px; line-height: 27px;}
-  section{padding-left:5px; padding-right:5px;}
-  .flex-grow div{padding-left: 10px; padding-right: 10px;}
+  h1, h1 span{font-size: 35px !important; line-height:45px !important;}
+  p{font-size: 17px !important; line-height: 27px !important;}
+  .flex-grow div{padding-left: 5px; padding-right: 5px;}
 }
