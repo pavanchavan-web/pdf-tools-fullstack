@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
+
 import ToolLayout from "../components/ToolLayout";
 import UploadBox from "../components/UploadBox";
 import ImageResultPreview from "../components/ImageResultPreview";
@@ -9,9 +11,20 @@ import { postFile } from "../utils/api";
 import { useNotify } from "../context/NotificationContext";
 
 const MAX_FILES = 20;
-const MAX_TOTAL_SIZE = 1024 * 1024 * 1024; // 1GB
+const MAX_TOTAL_SIZE = 1024 * 1024 * 1024; 
 
 export default function ImageCompressor() {
+  /* ================= SEO ================= */
+  const pageTitle =
+    "AI Image Compressor Online – Reduce Image Size Without Losing Quality";
+
+  const pageDesc =
+    "Compress images online using AI-powered image compression. Reduce image size without quality loss. Supports JPG, PNG, WEBP, AVIF formats. Free & secure.";
+
+  const pageKeywords =
+    "ai image compressor, image compressor online, reduce image size, compress images online, image optimization tool, webp image compression, avif image compression";
+
+  /* ================= STATE ================= */
   const [files, setFiles] = useState([]);
   const [zipBlob, setZipBlob] = useState(null);
 
@@ -141,124 +154,133 @@ export default function ImageCompressor() {
       : 0;
 
   return (
-    <ToolLayout
-      title="AI Image Compressor"
-      description="Compress images intelligently with live preview and quality control"
-    >
-      <ProcessingOverlay visible={visible} progress={progress} text={text} />
+    <>
+      {/* ================= SEO ================= */}
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <meta name="keywords" content={pageKeywords} />
+      </Helmet>
 
-      {!files.length && !zipBlob && !visible && (
-        <UploadBox
-          accept="image/*"
-          multiple
-          maxText="Max 20 images, 1GB total. BMP will be skipped."
-          onFiles={addFiles}
-        />
-      )}
+      {/* ================= TOOL LAYOUT ================= */}
+      <ToolLayout
+        title="AI Image Compressor"
+        description="Compress images intelligently with live preview and quality control"
+      >
+        <ProcessingOverlay visible={visible} progress={progress} text={text} />
 
-      {!zipBlob && files.length > 0 && !visible && (
-        <>
-          <h3 className="text-center font-medium mb-2">
-            {files[activeIndex]?.name}
-          </h3>
+        {!files.length && !zipBlob && !visible && (
+          <UploadBox
+            accept="image/*"
+            multiple
+            maxText="Max 20 images, 1GB total. BMP will be skipped."
+            onFiles={addFiles}
+          />
+        )}
 
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span>Original: {originalSizeKB} KB</span>
-            <span>
-              Preview: ~{previewSizeKB} KB ({savedPercent}%)
-            </span>
-          </div>
+        {!zipBlob && files.length > 0 && !visible && (
+          <>
+            <h3 className="text-center font-medium mb-2">
+              {files[activeIndex]?.name}
+            </h3>
 
-          {beforeSrc && afterSrc && (
-            <BeforeAfterCompare before={beforeSrc} after={afterSrc} />
-          )}
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>Original: {originalSizeKB} KB</span>
+              <span>
+                Preview: ~{previewSizeKB} KB ({savedPercent}%)
+              </span>
+            </div>
 
-          <div className="flex gap-3 overflow-x-auto mt-6 mb-4">
-            {files.map((file, i) => (
-              <img
-                key={i}
-                src={URL.createObjectURL(file)}
-                onClick={() => setActiveIndex(i)}
-                className={`h-20 cursor-pointer rounded border ${
-                  i === activeIndex ? "ring-2 ring-indigo-500" : ""
-                }`}
-                alt="thumb"
-              />
-            ))}
-          </div>
+            {beforeSrc && afterSrc && (
+              <BeforeAfterCompare before={beforeSrc} after={afterSrc} />
+            )}
 
-          <div className="bg-white border rounded-xl p-4 mb-6">
-            <div className="flex flex-wrap gap-6 items-center justify-between">
-              <div>
-                <label className="block text-sm mb-1">Format</label>
-                <select
-                  value={format}
-                  disabled={keepOriginal}
-                  onChange={(e) => setFormat(e.target.value)}
-                  className="border px-3 py-2 rounded disabled:bg-gray-100"
-                >
-                  <option value="webp">WEBP</option>
-                  <option value="jpeg">JPEG</option>
-                  <option value="avif">AVIF</option>
-                  <option value="png">PNG</option>
-                </select>
+            <div className="flex gap-3 overflow-x-auto mt-6 mb-4">
+              {files.map((file, i) => (
+                <img
+                  key={i}
+                  src={URL.createObjectURL(file)}
+                  onClick={() => setActiveIndex(i)}
+                  className={`h-20 cursor-pointer rounded border ${i === activeIndex ? "ring-2 ring-indigo-500" : ""
+                    }`}
+                  alt="thumb"
+                />
+              ))}
+            </div>
 
-                <div className="flex items-center gap-2 mt-2">
+            <div className="bg-white border rounded-xl p-4 mb-6">
+              <div className="flex flex-wrap gap-6 items-center justify-between">
+                <div>
+                  <label className="block text-sm mb-1">Format</label>
+                  <select
+                    value={format}
+                    disabled={keepOriginal}
+                    onChange={(e) => setFormat(e.target.value)}
+                    className="border px-3 py-2 rounded disabled:bg-gray-100"
+                  >
+                    <option value="webp">WEBP</option>
+                    <option value="jpeg">JPEG</option>
+                    <option value="avif">AVIF</option>
+                    <option value="png">PNG</option>
+                  </select>
+
+                  <div className="flex items-center gap-2 mt-2">
+                    <input
+                      type="checkbox"
+                      checked={keepOriginal}
+                      onChange={(e) => setKeepOriginal(e.target.checked)}
+                    />
+                    <span className="text-sm">Keep original format</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium">Quality</span>
                   <input
-                    type="checkbox"
-                    checked={keepOriginal}
-                    onChange={(e) => setKeepOriginal(e.target.checked)}
+                    type="range"
+                    min="20"   // ✅ FIXED
+                    max="99"   // ✅ FIXED
+                    value={quality}
+                    onChange={(e) => setQuality(Number(e.target.value))}
+                    className="w-56 accent-indigo-600"
                   />
-                  <span className="text-sm">Keep original format</span>
+                  <span className="border px-3 py-1 rounded text-sm font-medium">
+                    {quality}
+                  </span>
                 </div>
               </div>
-
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium">Quality</span>
-                <input
-                  type="range"
-                  min="20"   // ✅ FIXED
-                  max="99"   // ✅ FIXED
-                  value={quality}
-                  onChange={(e) => setQuality(Number(e.target.value))}
-                  className="w-56 accent-indigo-600"
-                />
-                <span className="border px-3 py-1 rounded text-sm font-medium">
-                  {quality}
-                </span>
-              </div>
             </div>
-          </div>
 
-          <div className="text-center">
-            <button
-              onClick={compress}
-              disabled={loading}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg"
-            >
-              {loading ? "Compressing..." : "Compress Images"}
-            </button>
-          </div>
-        </>
-      )}
+            <div className="text-center">
+              <button
+                onClick={compress}
+                disabled={loading}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg"
+              >
+                {loading ? "Compressing..." : "Compress Images"}
+              </button>
+            </div>
+          </>
+        )}
 
-      {zipBlob && (
-        <>
-          <ImageResultPreview zipBlob={zipBlob} />
-          <div className="mt-6 flex justify-center gap-4">
-            <a
-              href={URL.createObjectURL(zipBlob)}
-              download="compressed-images.zip"
-              className="bg-green-600 text-white px-6 py-3 rounded-lg"
-            >
-              ⬇️ Download ZIP
-            </a>
-            <button onClick={reset} className="border px-6 py-3 rounded-lg">
-              🔄 Compress more
-            </button>
-          </div>
-        </>
-      )}
-    </ToolLayout>
+        {zipBlob && (
+          <>
+            <ImageResultPreview zipBlob={zipBlob} />
+            <div className="mt-6 flex justify-center gap-4">
+              <a
+                href={URL.createObjectURL(zipBlob)}
+                download="compressed-images.zip"
+                className="bg-green-600 text-white px-6 py-3 rounded-lg"
+              >
+                ⬇️ Download ZIP
+              </a>
+              <button onClick={reset} className="border px-6 py-3 rounded-lg">
+                🔄 Compress more
+              </button>
+            </div>
+          </>
+        )}
+      </ToolLayout>
+    </>
   );
 }

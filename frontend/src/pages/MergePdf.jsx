@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+
 import ToolLayout from "../components/ToolLayout";
 import UploadBox from "../components/UploadBox";
 import FileList from "../components/FileList";
@@ -11,6 +13,17 @@ const MAX_FILES = 5;
 const MAX_TOTAL_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
 
 export default function MergePdf() {
+  /* ================= SEO ================= */
+  const pageTitle =
+    "Merge PDF Online – Combine PDF Files Free & Secure";
+
+  const pageDesc =
+    "Merge PDF files online for free. Combine multiple PDF documents into one file quickly and securely. No signup required, supports up to 5 PDFs.";
+
+  const pageKeywords =
+    "merge pdf online, combine pdf files, join pdf online, pdf merger free, merge multiple pdfs";
+
+  /* ================= STATE ================= */
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [resultUrl, setResultUrl] = useState(null);
@@ -91,77 +104,87 @@ export default function MergePdf() {
   };
 
   return (
-    <ToolLayout
-      title="Merge PDF"
-      description="Combine up to 5 PDFs into one file (Max 2GB total)"
-    >
-      <ProcessingOverlay
-        visible={visible}
-        progress={progress}
-        text={text}
-      />
+    <>
+      {/* ================= SEO ================= */}
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <meta name="keywords" content={pageKeywords} />
+      </Helmet>
 
-      {/* UPLOAD */}
-      {files.length === 0 && !resultUrl && !visible && (
-        <UploadBox
-          accept="application/pdf"
-          multiple
-          label="Select PDF files (Max 5 • Total 2GB)"
-          onFiles={addFiles}
+      {/* ================= TOOL ================= */}
+      <ToolLayout
+        title="Merge PDF"
+        description="Combine up to 5 PDFs into one file (Max 2GB total)"
+      >
+        <ProcessingOverlay
+          visible={visible}
+          progress={progress}
+          text={text}
         />
-      )}
 
-      {/* FILE LIST PAGE */}
-      {files.length > 0 && !resultUrl && !visible && (
-        <div className="bg-white rounded-xl border shadow-sm">
-          {/* TOP BAR */}
-          <div className="p-4 border-b flex justify-between items-center">
-            <button
-              onClick={() =>
-                document.getElementById("addMorePdf").click()
-              }
-              className="text-blue-600 font-medium"
-            >
-              ➕ Add more files
-            </button>
+        {/* UPLOAD */}
+        {files.length === 0 && !resultUrl && !visible && (
+          <UploadBox
+            accept="application/pdf"
+            multiple
+            label="Select PDF files (Max 5 • Total 2GB)"
+            onFiles={addFiles}
+          />
+        )}
 
-            <button
-              onClick={mergeNow}
-              disabled={loading || files.length < 2}
-              className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-lg"
-            >
-              {loading ? "Merging..." : "Merge →"}
-            </button>
+        {/* FILE LIST PAGE */}
+        {files.length > 0 && !resultUrl && !visible && (
+          <div className="bg-white rounded-xl border shadow-sm">
+            {/* TOP BAR */}
+            <div className="p-4 border-b flex justify-between items-center">
+              <button
+                onClick={() =>
+                  document.getElementById("addMorePdf").click()
+                }
+                className="text-blue-600 font-medium"
+              >
+                ➕ Add more files
+              </button>
 
-            <input
-              id="addMorePdf"
-              type="file"
-              accept="application/pdf"
-              multiple
-              hidden
-              onChange={(e) =>
-                addFiles([...e.target.files])
+              <button
+                onClick={mergeNow}
+                disabled={loading || files.length < 2}
+                className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-lg"
+              >
+                {loading ? "Merging..." : "Merge →"}
+              </button>
+
+              <input
+                id="addMorePdf"
+                type="file"
+                accept="application/pdf"
+                multiple
+                hidden
+                onChange={(e) =>
+                  addFiles([...e.target.files])
+                }
+              />
+            </div>
+
+            <FileList
+              files={files}
+              onRemove={(i) =>
+                setFiles(files.filter((_, idx) => idx !== i))
               }
             />
           </div>
+        )}
 
-          <FileList
-            files={files}
-            onRemove={(i) =>
-              setFiles(files.filter((_, idx) => idx !== i))
-            }
+        {/* RESULT */}
+        {resultUrl && (
+          <ResultPanel
+            fileUrl={resultUrl}
+            fileName="merged.pdf"
+            onReset={reset}
           />
-        </div>
-      )}
-
-      {/* RESULT */}
-      {resultUrl && (
-        <ResultPanel
-          fileUrl={resultUrl}
-          fileName="merged.pdf"
-          onReset={reset}
-        />
-      )}
-    </ToolLayout>
+        )}
+      </ToolLayout>
+    </>
   );
 }

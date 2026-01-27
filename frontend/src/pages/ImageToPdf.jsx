@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
+
 import ToolLayout from "../components/ToolLayout";
 import UploadBox from "../components/UploadBox";
 import FileList from "../components/FileList";
@@ -19,6 +21,17 @@ const ALLOWED_TYPES = [
 ];
 
 export default function ImageToPdf() {
+  /* ================= SEO ================= */
+  const pageTitle =
+    "Image to PDF Converter Online – Convert JPG, PNG, WEBP to PDF Free";
+
+  const pageDesc =
+    "Convert images to PDF online for free. Combine JPG, PNG, and WEBP images into a single high-quality PDF. Fast, secure, no signup required.";
+
+  const pageKeywords =
+    "image to pdf converter, jpg to pdf, png to pdf, webp to pdf, convert images to pdf online, free image to pdf";
+
+  /* ================= STATE ================= */
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [resultUrl, setResultUrl] = useState(null);
@@ -130,76 +143,85 @@ export default function ImageToPdf() {
   };
 
   return (
-    <ToolLayout
-      title="Image to PDF"
-      description="Convert up to 30 JPG / PNG / WEBP images into a single PDF (Max 1GB)"
-    >
-      <ProcessingOverlay
-        visible={visible}
-        progress={progress}
-        text={text}
-      />
+    <>
+      {/* ================= SEO ================= */}
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <meta name="keywords" content={pageKeywords} />
+      </Helmet>
 
-      {/* UPLOAD */}
-      {files.length === 0 && !resultUrl && !visible && (
-        <UploadBox
-          accept="image/*"
-          multiple
-          label="Select images (JPG, PNG, WEBP)"
-          onFiles={addFiles}
+      <ToolLayout
+        title="Image to PDF"
+        description="Convert up to 30 JPG / PNG / WEBP images into a single PDF (Max 1GB)"
+      >
+        <ProcessingOverlay
+          visible={visible}
+          progress={progress}
+          text={text}
         />
-      )}
 
-      {/* FILE LIST */}
-      {files.length > 0 && !resultUrl && !visible && (
-        <div className="bg-white rounded-xl border shadow-sm">
-          <div className="p-4 border-b flex justify-between items-center">
-            <button
-              onClick={() =>
-                document.getElementById("addMoreImages").click()
-              }
-              className="text-blue-600 font-medium"
-            >
-              ➕ Add more images
-            </button>
+        {/* UPLOAD */}
+        {files.length === 0 && !resultUrl && !visible && (
+          <UploadBox
+            accept="image/*"
+            multiple
+            label="Select images (JPG, PNG, WEBP)"
+            onFiles={addFiles}
+          />
+        )}
 
-            <button
-              onClick={convertNow}
-              disabled={loading}
-              className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-lg"
-            >
-              {loading ? "Converting..." : "Convert →"}
-            </button>
+        {/* FILE LIST */}
+        {files.length > 0 && !resultUrl && !visible && (
+          <div className="bg-white rounded-xl border shadow-sm">
+            <div className="p-4 border-b flex justify-between items-center">
+              <button
+                onClick={() =>
+                  document.getElementById("addMoreImages").click()
+                }
+                className="text-blue-600 font-medium"
+              >
+                ➕ Add more images
+              </button>
 
-            <input
-              id="addMoreImages"
-              type="file"
-              accept="image/*"
-              multiple
-              hidden
-              onChange={(e) =>
-                addFiles([...e.target.files])
+              <button
+                onClick={convertNow}
+                disabled={loading}
+                className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-lg"
+              >
+                {loading ? "Converting..." : "Convert →"}
+              </button>
+
+              <input
+                id="addMoreImages"
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                onChange={(e) =>
+                  addFiles([...e.target.files])
+                }
+              />
+            </div>
+
+            <FileList
+              files={files}
+              onRemove={(i) =>
+                setFiles(files.filter((_, idx) => idx !== i))
               }
             />
           </div>
+        )}
 
-          <FileList
-            files={files}
-            onRemove={(i) =>
-              setFiles(files.filter((_, idx) => idx !== i))
-            }
+        {/* RESULT */}
+        {resultUrl && (
+          <ResultPanel
+            fileUrl={resultUrl}
+            fileName="images.pdf"
+            onReset={reset}
           />
-        </div>
-      )}
-
-      {/* RESULT */}
-      {resultUrl && (
-        <ResultPanel
-          fileUrl={resultUrl}
-          fileName="images.pdf"
-          onReset={reset}
-        />
-      )}
-    </ToolLayout>
+        )}
+      </ToolLayout>
+    </>
   );
 }

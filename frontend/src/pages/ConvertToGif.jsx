@@ -4,8 +4,8 @@ export default function ConvertToGif() {
   return (
     <ImageConvert
       targetFormat="gif"
-      title="Convert to GIF"
-      desc="Convert PNG, JPG, JPEG, GIF, TIFF, AVIF, BMP, or RAW images format to GIF online in bulk with zero quality loss."
+      title="Convert to GIF Online – Free Image to GIF Converter"
+      desc="Convert JPG, PNG, JPEG, WEBP, AVIF, TIFF, BMP, and RAW images to GIF online. Free bulk GIF converter with high quality and no signup required."
       maxText="Max 20 images per upload"
     />
   );

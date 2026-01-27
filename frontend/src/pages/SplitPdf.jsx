@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
+
 import ToolLayout from "../components/ToolLayout";
 import UploadBox from "../components/UploadBox";
 import SplitResultPreview from "../components/SplitResultPreview";
@@ -7,6 +9,17 @@ import useProgress from "../hooks/useProgress";
 import { postFile } from "../utils/api";
 
 export default function SplitPdf() {
+  /* ================= SEO ================= */
+  const pageTitle =
+    "Split PDF Online – Separate PDF Pages Free & Fast";
+
+  const pageDesc =
+    "Split PDF files online for free. Separate PDF pages into individual files instantly. Fast, secure PDF splitter with no signup required.";
+
+  const pageKeywords =
+    "split pdf online, separate pdf pages, pdf splitter free, extract pdf pages, split pdf into pages";
+
+  /* ================= STATE ================= */
   const [file, setFile] = useState(null);
   const [zipBlob, setZipBlob] = useState(null);
 
@@ -50,50 +63,60 @@ export default function SplitPdf() {
   };
 
   return (
-    <ToolLayout
-      title="Split PDF"
-      description="Split PDF into individual pages automatically"
-    >
-      {/* 🔄 Progress Overlay */}
-      <ProcessingOverlay
-        visible={visible}
-        progress={progress}
-        text={text}
-      />
+    <>
+      {/* ================= SEO ================= */}
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <meta name="keywords" content={pageKeywords} />
+      </Helmet>
 
-      {/* Upload */}
-      {!zipBlob && !visible && (
-        <UploadBox
-          accept="application/pdf"
-          multiple={false}
-          label="Select PDF file"
-          onFiles={(files) => setFile(files[0])}
+      {/* ================= TOOL ================= */}
+      <ToolLayout
+        title="Split PDF"
+        description="Split PDF into individual pages automatically"
+      >
+        {/* 🔄 Progress Overlay */}
+        <ProcessingOverlay
+          visible={visible}
+          progress={progress}
+          text={text}
         />
-      )}
 
-      {/* Result */}
-      {zipBlob && (
-        <>
-          <SplitResultPreview zipBlob={zipBlob} />
+        {/* Upload */}
+        {!zipBlob && !visible && (
+          <UploadBox
+            accept="application/pdf"
+            multiple={false}
+            label="Select PDF file"
+            onFiles={(files) => setFile(files[0])}
+          />
+        )}
 
-          <div className="mt-6 flex justify-center gap-4">
-            <a
-              href={URL.createObjectURL(zipBlob)}
-              download="split-pages.zip"
-              className="bg-green-600 text-white px-6 py-3 rounded-lg"
-            >
-              ⬇️ Download ZIP
-            </a>
+        {/* Result */}
+        {zipBlob && (
+          <>
+            <SplitResultPreview zipBlob={zipBlob} />
 
-            <button
-              onClick={reset}
-              className="border px-6 py-3 rounded-lg"
-            >
-              🔄 Process another file
-            </button>
-          </div>
-        </>
-      )}
-    </ToolLayout>
+            <div className="mt-6 flex justify-center gap-4">
+              <a
+                href={URL.createObjectURL(zipBlob)}
+                download="split-pages.zip"
+                className="bg-green-600 text-white px-6 py-3 rounded-lg"
+              >
+                ⬇️ Download ZIP
+              </a>
+
+              <button
+                onClick={reset}
+                className="border px-6 py-3 rounded-lg"
+              >
+                🔄 Process another file
+              </button>
+            </div>
+          </>
+        )}
+      </ToolLayout>
+    </>
   );
 }

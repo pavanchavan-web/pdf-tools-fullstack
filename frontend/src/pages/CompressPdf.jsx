@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
+
 import ToolLayout from "../components/ToolLayout";
 import UploadBox from "../components/UploadBox";
 import ResultPanel from "../components/ResultPanel";
@@ -7,6 +9,17 @@ import useProgress from "../hooks/useProgress";
 import { postFile } from "../utils/api";
 
 export default function CompressPdf() {
+  /* ================= SEO ================= */
+  const pageTitle =
+    "Compress PDF Online – Reduce PDF File Size Free";
+
+  const pageDesc =
+    "Compress PDF files online for free. Reduce PDF file size without losing quality. Fast, secure PDF compressor with no signup required.";
+
+  const pageKeywords =
+    "compress pdf online, reduce pdf size, pdf compressor free, shrink pdf file, optimize pdf";
+
+  /* ================= STATE ================= */
   const [file, setFile] = useState(null);
   const [resultUrl, setResultUrl] = useState(null);
 
@@ -52,35 +65,45 @@ export default function CompressPdf() {
   };
 
   return (
-    <ToolLayout
-      title="Compress PDF"
-      description="Reduce PDF file size easily and automatically"
-    >
-      {/* 🔄 Progress Overlay */}
-      <ProcessingOverlay
-        visible={visible}
-        progress={progress}
-        text={text}
-      />
+    <>
+      {/* ================= SEO ================= */}
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <meta name="keywords" content={pageKeywords} />
+      </Helmet>
 
-      {/* Upload screen */}
-      {!resultUrl && !visible && (
-        <UploadBox
-          accept="application/pdf"
-          multiple={false}
-          label="Select PDF file"
-          onFiles={(files) => setFile(files[0])}
+      {/* ================= TOOL ================= */}
+      <ToolLayout
+        title="Compress PDF"
+        description="Reduce PDF file size easily and automatically"
+      >
+        {/* 🔄 Progress Overlay */}
+        <ProcessingOverlay
+          visible={visible}
+          progress={progress}
+          text={text}
         />
-      )}
 
-      {/* Result screen */}
-      {resultUrl && (
-        <ResultPanel
-          fileUrl={resultUrl}
-          fileName="compressed.pdf"
-          onReset={reset}
-        />
-      )}
-    </ToolLayout>
+        {/* Upload screen */}
+        {!resultUrl && !visible && (
+          <UploadBox
+            accept="application/pdf"
+            multiple={false}
+            label="Select PDF file"
+            onFiles={(files) => setFile(files[0])}
+          />
+        )}
+
+        {/* Result screen */}
+        {resultUrl && (
+          <ResultPanel
+            fileUrl={resultUrl}
+            fileName="compressed.pdf"
+            onReset={reset}
+          />
+        )}
+      </ToolLayout>
+    </>
   );
 }
