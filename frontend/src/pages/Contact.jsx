@@ -143,7 +143,7 @@ export default function Contact() {
                                         <span className="font-medium text-[20px]">
                                             {faq.q}
                                         </span>
-                                        <span className="">
+                                        <span className="faqicons">
                                             {isOpen ? "×" : "+"}
                                         </span>
                                     </button>

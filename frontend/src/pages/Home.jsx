@@ -420,7 +420,7 @@ export default function Home() {
           </div>
 
           {/* Bottom Left – Image Card */}
-          <div className="grid grid-cols-1 md:grid-cols-[40%_60%] gap-6 ">
+          <div className="grid grid-cols-1 md:grid-cols-[40%_60%] gap-6 reviews">
             <div className="rounded-2xl border overflow-hidden bg-slate-800 text-white">
               <div className="p-5">
                 <span className="">
@@ -435,7 +435,7 @@ export default function Home() {
               <img
                 src={Reviews}
                 alt=""
-                className="w-55 h-48 object-cover pl-5 pb-5 shadow-md"
+                className="pl-5 pb-5 shadow-md"
               />
             </div>
 

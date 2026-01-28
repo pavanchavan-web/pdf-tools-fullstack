@@ -274,6 +274,13 @@ nav a:hover {
   font-size: 1.5rem;
 }
 
+.reviews img{
+  width: 90%;
+  height: 43px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
 @media (max-width:768px) {
   h1, h1 span{font-size: 35px !important; line-height:45px !important;}
   p{font-size: 17px !important; line-height: 27px !important;}
