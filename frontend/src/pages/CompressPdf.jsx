@@ -74,10 +74,7 @@ export default function CompressPdf() {
       </Helmet>
 
       {/* ================= TOOL ================= */}
-      <ToolLayout
-        title="Compress PDF"
-        description="Reduce PDF file size easily and automatically"
-      >
+      <ToolLayout title={pageTitle} description={pageDesc}>
         {/* 🔄 Progress Overlay */}
         <ProcessingOverlay
           visible={visible}

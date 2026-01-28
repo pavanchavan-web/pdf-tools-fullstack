@@ -72,10 +72,7 @@ export default function SplitPdf() {
       </Helmet>
 
       {/* ================= TOOL ================= */}
-      <ToolLayout
-        title="Split PDF"
-        description="Split PDF into individual pages automatically"
-      >
+      <ToolLayout title={pageTitle} description={pageDesc}>
         {/* 🔄 Progress Overlay */}
         <ProcessingOverlay
           visible={visible}

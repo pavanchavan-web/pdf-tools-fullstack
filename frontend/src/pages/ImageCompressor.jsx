@@ -163,10 +163,7 @@ export default function ImageCompressor() {
       </Helmet>
 
       {/* ================= TOOL LAYOUT ================= */}
-      <ToolLayout
-        title="AI Image Compressor"
-        description="Compress images intelligently with live preview and quality control"
-      >
+      <ToolLayout title={pageTitle} description={pageDesc}>
         <ProcessingOverlay visible={visible} progress={progress} text={text} />
 
         {!files.length && !zipBlob && !visible && (

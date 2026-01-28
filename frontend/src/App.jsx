@@ -29,6 +29,7 @@ import Security from "./pages/legal/Security";
 import CookiesPolicy from "./pages/legal/CookiesPolicy";
 import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
+import NotFound from "./pages/404";
 
 export default function App() {
   const { notify } = useNotify();
@@ -74,6 +75,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/contact-us" element={<Contact />} />
           <Route path="/about-us" element={<AboutUs />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
 

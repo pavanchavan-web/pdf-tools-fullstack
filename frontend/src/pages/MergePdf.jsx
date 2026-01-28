@@ -113,10 +113,8 @@ export default function MergePdf() {
       </Helmet>
 
       {/* ================= TOOL ================= */}
-      <ToolLayout
-        title="Merge PDF"
-        description="Combine up to 5 PDFs into one file (Max 2GB total)"
-      >
+      <ToolLayout title={pageTitle} description={pageDesc}>
+        
         <ProcessingOverlay
           visible={visible}
           progress={progress}

@@ -151,10 +151,8 @@ export default function ImageToPdf() {
         <meta name="keywords" content={pageKeywords} />
       </Helmet>
 
-      <ToolLayout
-        title="Image to PDF"
-        description="Convert up to 30 JPG / PNG / WEBP images into a single PDF (Max 1GB)"
-      >
+      <ToolLayout title={pageTitle} description={pageDesc}>
+
         <ProcessingOverlay
           visible={visible}
           progress={progress}

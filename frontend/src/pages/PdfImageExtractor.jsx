@@ -72,10 +72,7 @@ export default function PdfImageExtractor() {
       </Helmet>
 
       {/* ================= TOOL ================= */}
-      <ToolLayout
-        title="Extract Images from PDF"
-        description="Automatically extract all images from a PDF file"
-      >
+      <ToolLayout title={pageTitle} description={pageDesc}>
         {/* 🔄 Progress Overlay */}
         <ProcessingOverlay
           visible={visible}

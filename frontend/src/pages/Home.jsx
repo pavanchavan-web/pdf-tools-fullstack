@@ -194,6 +194,7 @@ export default function Home() {
           content="pdf tools online, image tools online, merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools"
         />
       </Helmet>
+
       {/* ================= HERO ================= */}
       <section className="relative bg-gradient-to-b from-blue-50 to-orange-50 py-[7rem] text-center">
 
@@ -232,7 +233,7 @@ export default function Home() {
             variant="outline"
             size="lg"
             onClick={() => document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" })}
-            className="gap-2 h-12 text-base font-medium text-[18px]"
+            className="gap-2 h-12 text-base font-medium text-[18px] bg-white"
           >
             See All Tools
             <ArrowRight className="h-4 w-4" />
