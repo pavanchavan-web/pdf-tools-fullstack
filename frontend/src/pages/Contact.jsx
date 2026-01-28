@@ -135,7 +135,7 @@ export default function Contact() {
                             const isOpen = openIndex === i;
 
                             return (
-                                <div key={i} className="p-5 mb-5 border rounded-md">
+                                <div key={i} className="p-5 mb-5 border rounded-md bg-gray-50">
                                     <button
                                         onClick={() => setOpenIndex(isOpen ? null : i)}
                                         className="w-full flex items-center justify-between text-left"

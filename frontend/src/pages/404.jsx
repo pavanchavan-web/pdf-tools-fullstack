@@ -22,7 +22,8 @@ export default function NotFound() {
           </h2>
 
           <p className="text-gray-500 mt-3">
-            The tool or page you’re looking for doesn’t exist or may have been moved.
+            The tool or page you’re looking for 
+            doesn’t exist or may have been moved.
           </p>
 
           {/* CTA */}

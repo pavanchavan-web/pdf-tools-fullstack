@@ -270,6 +270,10 @@ nav a:hover {
   background-color: #4f46e51c;
 }
 
+.faqicons{
+  font-size: 1.5rem;
+}
+
 @media (max-width:768px) {
   h1, h1 span{font-size: 35px !important; line-height:45px !important;}
   p{font-size: 17px !important; line-height: 27px !important;}

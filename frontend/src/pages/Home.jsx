@@ -15,6 +15,7 @@ import Convert2GIF from "../assets/tools/16.svg";
 import Convert2SVG from "../assets/tools/15.svg";
 import Convert2WEBP from "../assets/tools/10.svg";
 import Convert2JPEG from "../assets/tools/11.svg";
+import Reviews from "../assets/reviews.jpg";
 import BG from "../assets/bg.webp";
 
 import { Button } from "../components/ui/button";
@@ -156,25 +157,33 @@ export default function Home() {
     activeCategory === "All"
       ? tools
       : tools.filter((tool) =>
-          tool.categories?.includes(activeCategory)
-        );
+        tool.categories?.includes(activeCategory)
+      );
 
   const faqs = [
     {
       q: "Are these tools free to use?",
-      a: "Yes. All tools on our website are completely free to use without hidden charges.",
+      a: "Yes. All tools on our website are completely free to use. You can compress, convert, edit, and secure files without any hidden charges or subscriptions.",
     },
     {
       q: "Do I need to create an account?",
-      a: "No signup required. Use all tools instantly without registration.",
+      a: "No signup required. You can use all tools instantly without registering or logging in.",
     },
     {
-      q: "Is my data safe?",
-      a: "Yes. Files are processed securely and automatically deleted.",
+      q: "Is my data safe and secure?",
+      a: "Absolutely. All uploaded files are processed securely and automatically deleted from our servers after processing to ensure your privacy.",
     },
     {
-      q: "Can I use these tools on mobile?",
-      a: "Absolutely. All tools work on mobile, tablet, and desktop.",
+      q: "Are my files stored on your servers?",
+      a: "No. Files are temporarily processed and then permanently removed. We do not store, view, or share your files.",
+    },
+    {
+      q: "Can I use these tools on mobile devices?",
+      a: "Yes. Our tools are fully responsive and work smoothly on mobile, tablet, and desktop devices.",
+    },
+    {
+      q: "Can I use these tools for business or commercial purposes?",
+      a: "Yes. You can use our tools for both personal and professional use without restrictions.",
     },
   ];
 
@@ -233,7 +242,7 @@ export default function Home() {
             variant="outline"
             size="lg"
             onClick={() => document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" })}
-            className="gap-2 h-12 text-base font-medium text-[18px] bg-white"
+            className="gap-2 h-12 text-base font-medium text-[18px] bg-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
           >
             See All Tools
             <ArrowRight className="h-4 w-4" />
@@ -424,7 +433,7 @@ export default function Home() {
                 </p>
               </div>
               <img
-                src={BG}
+                src={Reviews}
                 alt=""
                 className="w-55 h-48 object-cover pl-5 pb-5 shadow-md"
               />
@@ -470,7 +479,7 @@ export default function Home() {
               const isOpen = openIndex === i;
 
               return (
-                <div key={i} className="p-5 mb-5 border rounded-md">
+                <div key={i} className="p-5 mb-5 border rounded-md bg-gray-50">
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : i)}
                     className="w-full flex items-center justify-between text-left"
@@ -478,7 +487,7 @@ export default function Home() {
                     <span className="font-medium text-[20px]">
                       {faq.q}
                     </span>
-                    <span className="">
+                    <span className="faqicons">
                       {isOpen ? "×" : "+"}
                     </span>
                   </button>
