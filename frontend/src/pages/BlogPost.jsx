@@ -37,9 +37,9 @@ export default function BlogPost() {
                 <meta name="description" body={post.excerpt} />
             </Helmet>
 
-            <div className="text-3xl md:text-4xl font-bold mb-4 leading-tight bg-gray-50">
+            <div className="text-3xl md:text-4xl font-bold mb-4 leading-tight bg-gradient-to-b from-blue-50 to-orange-50 text-center">
                 {/* TITLE */}
-                <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+                <h1 className="text-3xl max-w-3xl md:text-4xl font-bold mb-4 leading-tight">
                     {post.title}
                 </h1>
 
