@@ -44,6 +44,7 @@ export default function Footer() {
           <ul className="space-y-2 text-sm flex flex-col">
             <Link to="/about-us" className="space-y-2 text-sm">About Us</Link>
             <Link to="/contact-us" className="space-y-2 text-sm">Contact</Link>
+            <Link to="/blog" className="space-y-2 text-sm">Blogs</Link>
           </ul>
         </div>
 
