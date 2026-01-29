@@ -30,16 +30,16 @@ export default function BlogPost() {
     if (!post) return null;
 
     return (
-        <>
+        <div className="bg-white">
             {/* SEO */}
             <Helmet>
                 <title>{post.title} | ConvertZip Blog</title>
                 <meta name="description" body={post.excerpt} />
             </Helmet>
 
-            <div className="text-3xl md:text-4xl font-bold mb-4 leading-tight bg-gradient-to-b from-blue-50 to-orange-50 text-center">
+            <div className="text-3xl md:text-4xl font-bold mb-4 leading-tight bg-gradient-to-b from-blue-50 to-orange-50 text-center py-20">
                 {/* TITLE */}
-                <h1 className="text-3xl max-w-3xl md:text-4xl font-bold mb-4 leading-tight">
+                <h1 className="text-3xl max-w-3xl md:text-4xl font-bold mb-4 leading-tight text-center">
                     {post.title}
                 </h1>
 
@@ -55,7 +55,7 @@ export default function BlogPost() {
                 )}
             </div >
 
-            <article className="max-w-3xl mx-auto px-4 py-8">
+            <article className="max-w-3xl mx-auto px-4 py-8 ">
                 {/* COVER IMAGE */}
                 {post.mainImage && (
                     <img
@@ -71,6 +71,6 @@ export default function BlogPost() {
                     <PortableText value={post.body} />
                 </div>
             </article>
-        </>
+        </div>
     );
 }
