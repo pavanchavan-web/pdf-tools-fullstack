@@ -191,17 +191,39 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-slate-50 text-gray-800">
       {/* ================= SEO ================= */}
       <Helmet>
+        {/* Basic SEO */}
         <title>
           Free PDF & Image Tools – Merge, Compress & Convert Online
         </title>
+
         <meta
           name="description"
           content="Free online PDF and image tools to merge, split, compress, and convert files. Use JPG, PNG, WEBP, AVIF tools instantly with fast, secure access."
         />
+
         <meta
           name="keywords"
           content="pdf tools online, image tools online, merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools"
         />
+
+        {/* ✅ STRUCTURED DATA (JSON-LD) */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "ConvertZip",
+            "operatingSystem": "Web",
+            "applicationCategory": "UtilitiesApplication",
+            "url": "https://convertzip.com",
+            "description":
+              "Free online PDF and image tools to merge, split, compress, and convert files.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            }
+          })}
+        </script>
       </Helmet>
 
       {/* ================= HERO ================= */}
@@ -222,8 +244,8 @@ export default function Home() {
         </h1>
 
         <p className="max-w-2xl mx-auto mt-6">
-          Free online PDF and image tools to merge, split, compress, 
-          and convert files. Use JPG, PNG, WEBP, AVIF tools instantly 
+          Free online PDF and image tools to merge, split, compress,
+          and convert files. Use JPG, PNG, WEBP, AVIF tools instantly
           with fast, secure access.
         </p>
 
