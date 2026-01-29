@@ -30,6 +30,8 @@ import CookiesPolicy from "./pages/legal/CookiesPolicy";
 import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
 import NotFound from "./pages/404";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost"
 
 export default function App() {
   const { notify } = useNotify();
@@ -75,6 +77,8 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/contact-us" element={<Contact />} />
           <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>

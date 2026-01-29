@@ -9,7 +9,9 @@
   "dependencies": {
     "@clerk/nextjs": "^6.36.5",
     "@emailjs/browser": "^4.4.1",
+    "@portabletext/react": "^6.0.2",
     "@radix-ui/react-slot": "^1.2.4",
+    "@sanity/client": "^7.14.1",
     "@vercel/analytics": "^1.6.1",
     "@vercel/speed-insights": "^1.3.1",
     "class-variance-authority": "^0.7.1",
