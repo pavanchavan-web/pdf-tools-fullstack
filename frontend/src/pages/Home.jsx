@@ -192,11 +192,11 @@ export default function Home() {
       {/* ================= SEO ================= */}
       <Helmet>
         <title>
-          Free PDF & Image Tools Online – Merge, Compress, Convert Files
+          Free PDF & Image Tools – Merge, Compress & Convert Online
         </title>
         <meta
           name="description"
-          content="Use free online PDF and image tools to merge, split, compress, and convert files instantly. JPG, PNG, WEBP, AVIF, PDF tools with fast, secure, no-signup access."
+          content="Free online PDF and image tools to merge, split, compress, and convert files. Use JPG, PNG, WEBP, AVIF tools instantly with fast, secure access."
         />
         <meta
           name="keywords"
@@ -214,17 +214,17 @@ export default function Home() {
         </div>
 
         <h1 className="leading-tight">
-          All the {" "}
+          Free PDF &  {" "}
           <span className="text-indigo-600 font-bold">
-            PDF & Image
-          </span> Tools You Need <br />
-          <span className="font-serif italic">Fast, Secure & Free</span>
+            Image Tools
+          </span><br />
+          <span className="font-serif italic">Merge, Compress & Convert Online</span>
         </h1>
 
         <p className="max-w-2xl mx-auto mt-6">
-          Use our free online PDF tools to merge, split, compress,
-          convert, extract images, and enjoy AI-powered image compression
-          — right in your browser.
+          Free online PDF and image tools to merge, split, compress, 
+          and convert files. Use JPG, PNG, WEBP, AVIF tools instantly 
+          with fast, secure access.
         </p>
 
         {/* CTAs */}
