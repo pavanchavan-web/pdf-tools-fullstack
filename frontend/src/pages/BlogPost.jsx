@@ -55,7 +55,7 @@ export default function BlogPost() {
                 )}
             </div >
 
-            <article className="max-w-3xl mx-auto px-4 py-8 ">
+            <article className="max-w-3xl mx-auto px-4 py-8 blogpost-content">
                 {/* COVER IMAGE */}
                 {post.mainImage && (
                     <img

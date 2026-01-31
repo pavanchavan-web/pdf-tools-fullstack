@@ -286,6 +286,18 @@ nav a:hover {
   margin-bottom: 25px;
 }
 
+.blogpost-content ul{
+    font-size: 20px !important;
+    padding-left: 30px !important;
+    padding-bottom: 20px !important;
+    line-height: 30px !important;
+    list-style: disc !important;
+}
+
+.blogpost-content a{
+  color: #4f46e5;
+}
+
 @media (max-width:768px) {
   h1, h1 span{font-size: 35px !important; line-height:45px !important;}
   .tool-content h1{font-size: 30px !important; line-height: 37px !important;}
@@ -293,8 +305,8 @@ nav a:hover {
   .flex-grow div{padding-left: 8px; padding-right: 8px;}
   br{display: none;}
   .blog-post{padding: 12px}
-  .legal-header{padding: 25px !important}
-  .legal-content{padding: 15px !important}
-  h6.about-title{font-size: 25px !important; line-height: 35px !important;}
-  .about-sect h5{font-size: 30px !important; line-height: 35px !important;}
+  .legal-header{padding: 30px !important}
+  .legal-content{padding: 20px !important}
+  h6.about-title{font-size: 28px !important; line-height: 40px !important;}
+  .about-sect h5{font-size: 45px !important; line-height: 65px !important;}
 }
