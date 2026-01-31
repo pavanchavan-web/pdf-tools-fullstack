@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://convertzip.com/sitemap.xml
+Sitemap: https://convertzip.com/sitemap-blog.xml
