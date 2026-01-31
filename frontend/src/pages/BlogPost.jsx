@@ -37,7 +37,7 @@ export default function BlogPost() {
                 <meta name="description" body={post.excerpt} />
             </Helmet>
 
-            <div className="mb-4 leading-tight bg-gray-100 text-center py-20 flex items-center justify-center">
+            <div className="mb-4 leading-tight bg-gray-100 text-center py-20 flex flex-col items-center justify-center gap-[30px]">
                 {/* TITLE */}
                 <h1 className="text-3xl max-w-3xl md:text-4xl font-bold text-center">
                     {post.title}
@@ -45,7 +45,7 @@ export default function BlogPost() {
 
                 {/* DATE */}
                 {post.publishedAt && (
-                    <p className="text-sm text-gray-500 mb-6">
+                    <p className="text-md text-gray-500 mb-6">
                         {new Date(post.publishedAt).toLocaleDateString("en-IN", {
                             day: "numeric",
                             month: "long",

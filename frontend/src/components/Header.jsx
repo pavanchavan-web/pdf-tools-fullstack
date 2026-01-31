@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   SignedIn,
@@ -12,11 +12,16 @@ export default function Header() {
   const { user, isLoaded } = useUser();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Prevent body scroll when menu is open (mobile UX)
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+  }, [menuOpen]);
+
   return (
     <header className="sticky top-0 z-50 bg-white border-b">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
 
-        {/* Left: Hamburger + Logo */}
+        {/* Left */}
         <div className="flex items-center gap-3">
           <button
             className="md:hidden text-2xl text-gray-700"
@@ -27,7 +32,7 @@ export default function Header() {
           </button>
 
           <Link to="/">
-            <img src={logo} alt="Logo" className="w-[140px] h-auto" />
+            <img src={logo} alt="Logo" className="w-[140px]" />
           </Link>
         </div>
 
@@ -37,22 +42,18 @@ export default function Header() {
           <Link to="/merge-pdf" className="hover:text-blue-600">Merge PDF</Link>
           <Link to="/image-converter" className="hover:text-blue-600">Convert Images</Link>
           <Link to="/image-compressor" className="hover:text-blue-600">Compress Images</Link>
-          <Link to="/" className="hover:text-blue-600">All Tools</Link>
+          <Link to="/all-tools" className="hover:text-blue-600">All Tools</Link>
         </nav>
 
-        {/* Right: Auth (VISIBLE ON MOBILE + DESKTOP) */}
+        {/* Auth */}
         <div className="flex gap-3 items-center">
           <SignedOut>
-            <Link
-              to="/sign-in"
-              className="text-sm font-medium hover:text-indigo-700"
-            >
+            <Link to="/sign-in" className="text-md font-medium hover:text-indigo-700">
               Login
             </Link>
-
             <Link
               to="/sign-up"
-              className="sm:inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
             >
               Sign up
             </Link>
@@ -71,28 +72,45 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Nav Drawer (NO AUTH HERE ❌) */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 md:hidden">
-          <div className="bg-white w-72 h-full p-5">
+      {/* Mobile Drawer */}
+      <div
+        className={`fixed inset-0 z-50 bg-black/40 transition-opacity duration-300 md:hidden ${
+          menuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
+        onClick={() => setMenuOpen(false)} // outside click close
+      >
+        <div
+          className={`bg-white w-72 h-full p-5 transform transition-transform duration-300 ease-in-out ${
+            menuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+          onClick={(e) => e.stopPropagation()} // prevent close on drawer click
+        >
+          <button
+            className="text-gray-600 mb-6"
+            onClick={() => setMenuOpen(false)}
+          >
+            ✕ Close
+          </button>
 
-            <button
-              className="text-gray-600 mb-6"
-              onClick={() => setMenuOpen(false)}
-            >
-              ✕ Close
-            </button>
+          <nav className="flex flex-col gap-5 text-sm font-medium text-gray-700">
+            {/* Image Tools */}
+            <p className="text-xs uppercase text-gray-400">Image Tools</p>
+            <Link onClick={() => setMenuOpen(false)} to="/image-to-pdf">Images to PDF</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/image-converter">Image Converter</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/image-compressor">Image Compressor</Link>
 
-            <nav className="flex flex-col gap-4 text-sm font-medium text-gray-700">
-              <Link onClick={() => setMenuOpen(false)} to="/image-to-pdf">Images to PDF</Link>
-              <Link onClick={() => setMenuOpen(false)} to="/merge-pdf">Merge PDF</Link>
-              <Link onClick={() => setMenuOpen(false)} to="/image-converter">Convert Images</Link>
-              <Link onClick={() => setMenuOpen(false)} to="/image-compressor">Compress Images</Link>
-              <Link onClick={() => setMenuOpen(false)} to="/">All Tools</Link>
-            </nav>
-          </div>
+            {/* PDF Tools */}
+            <p className="text-xs uppercase text-gray-400 mt-4">PDF Tools</p>
+            <Link onClick={() => setMenuOpen(false)} to="/merge-pdf">Merge PDF</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/split-pdf">Split PDF</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/compress-pdf">Compress PDF</Link>
+
+            {/* More */}
+            <p className="text-xs uppercase text-gray-400 mt-4">More</p>
+            <Link onClick={() => setMenuOpen(false)} to="/all-tools">All Tools</Link>
+          </nav>
         </div>
-      )}
+      </div>
     </header>
   );
 }
