@@ -3,14 +3,14 @@
 export default function CookiesPolicy() {
   return (
     <div>
-      <section className="border-b bg-white">
+      <section className="border-b bg-white legal-header">
         <div className="mx-auto px-4 md:px-6 md:py-20 text-center space-y-6">
           <h1 className="mb-2">Cookies Policy</h1>
           <p>
             Understand how cookies are used on ConvertZip to improve performance and user experience.                    </p>
         </div>
       </section>
-      <div className="prose max-w-4xl mx-auto rounded-3xl border bg-white p-8 my-10 space-y-6">
+      <div className="prose max-w-4xl mx-auto rounded-3xl border bg-white p-8 my-10 space-y-6 legal-content">
 
         <p>
           This Cookies Policy explains how <strong>ConvertZip</strong> uses cookies

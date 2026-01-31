@@ -290,5 +290,11 @@ nav a:hover {
   h1, h1 span{font-size: 35px !important; line-height:45px !important;}
   .tool-content h1{font-size: 30px !important; line-height: 37px !important;}
   p{font-size: 17px !important; line-height: 27px !important;}
-  .flex-grow div{padding-left: 5px; padding-right: 5px;}
+  .flex-grow div{padding-left: 8px; padding-right: 8px;}
+  br{display: none;}
+  .blog-post{padding: 12px}
+  .legal-header{padding: 25px !important}
+  .legal-content{padding: 15px !important}
+  h6.about-title{font-size: 25px !important; line-height: 35px !important;}
+  .about-sect h5{font-size: 30px !important; line-height: 35px !important;}
 }

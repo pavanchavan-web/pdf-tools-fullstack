@@ -2,7 +2,7 @@
 export default function PrivacyPolicy() {
     return (
         <div>
-            <section className="border-b bg-white">
+            <section className="border-b bg-white legal-header">
                 <div className="mx-auto px-4 md:px-6 md:py-20 text-center space-y-6">
                     <h1 className="mb-2">Privacy Policy</h1>
                     <p>
@@ -11,7 +11,7 @@ export default function PrivacyPolicy() {
                 </div>
             </section>
 
-            <div className="prose max-w-4xl mx-auto rounded-3xl border bg-white p-8 my-10 space-y-6">
+            <div className="prose max-w-4xl mx-auto rounded-3xl border bg-white p-8 my-10 space-y-6 legal-content">
                 <p>
                     At <strong>ConvertZip</strong>, your privacy is extremely important to us.
                     This Privacy Policy explains how we collect, use, and protect your

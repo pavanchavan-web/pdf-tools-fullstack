@@ -1,14 +1,14 @@
 export default function TermsConditions() {
   return (
     <div>
-      <section className="border-b bg-white">
+      <section className="border-b bg-white legal-header">
         <div className="mx-auto px-4 md:px-6 md:py-20 text-center space-y-6">
           <h1 className="mb-2">Terms & Conditions</h1>
           <p>
             Read the terms and conditions for using ConvertZip free PDF and image tools online.                    </p>
         </div>
       </section>
-      <div className="prose max-w-4xl mx-auto rounded-3xl border bg-white p-8 my-10 space-y-6">
+      <div className="prose max-w-4xl mx-auto rounded-3xl border bg-white p-8 my-10 space-y-6 legal-content">
         <p>
           By accessing or using <strong>ConvertZip</strong>, you agree to comply
           with these Terms & Conditions.

@@ -45,14 +45,14 @@ export default function Blog() {
                   <img
                     src={urlFor(post.mainImage).width(600).height(350).fit("crop").url()}
                     alt={post.title}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-50 object-cover"
                     loading="lazy"
                   />
                 </Link>
               )}
 
               {/* blockContent */}
-              <div className="p-5">
+              <div className="blog-post p-5">
                 {/* DATE */}
                 <p className="text-sm text-gray-500 mb-2">
                   {new Date(post.publishedAt).toLocaleDateString("en-IN", {

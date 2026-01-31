@@ -42,7 +42,7 @@ export default function Header() {
           <Link to="/merge-pdf" className="hover:text-blue-600">Merge PDF</Link>
           <Link to="/image-converter" className="hover:text-blue-600">Convert Images</Link>
           <Link to="/image-compressor" className="hover:text-blue-600">Compress Images</Link>
-          <Link to="/all-tools" className="hover:text-blue-600">All Tools</Link>
+          <Link to="/" className="hover:text-blue-600">All Tools</Link>
         </nav>
 
         {/* Auth */}
@@ -107,7 +107,7 @@ export default function Header() {
 
             {/* More */}
             <p className="text-xs uppercase text-gray-400 mt-4">More</p>
-            <Link onClick={() => setMenuOpen(false)} to="/all-tools">All Tools</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/">All Tools</Link>
           </nav>
         </div>
       </div>

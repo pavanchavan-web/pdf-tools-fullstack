@@ -15,9 +15,9 @@ export default function About() {
             </section>
 
             {/* Facts & Numbers */}
-            <section className="py-20 px-6 text-center bg-white">
+            <section className="py-20 px-6 text-center bg-white about-sect">
                 {/* Top Text */}
-                <p className="max-w-4xl mx-auto text-[25px] text-gray-800 leading-relaxed">
+                <h6 className="max-w-4xl mx-auto text-[25px] text-gray-800 leading-relaxed about-title">
                     We blend{" "}
                     <span className="inline-flex items-center gap-1 px-3 py-1 mx-1 rounded-full bg-purple-100 text-purple-600 text-[25px] font-medium">
                         ✦ Design
@@ -31,7 +31,7 @@ export default function About() {
                     </span>
                     <br />
                     to build powerful, digital solutions, products, and platforms that deliver measurable, real-world impact.
-                </p>
+                </h6>
 
                 {/* Numbers */}
                 <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 max-w-4xl mx-auto">
@@ -45,10 +45,10 @@ export default function About() {
                             className={`px-6 ${index !== 0 ? "sm:border-l border-gray-200" : ""
                                 }`}
                         >
-                            <p className="text-5xl font-semibold text-gray-900">
+                            <h5 className="text-5xl font-semibold text-gray-900">
                                 +{item.value}
-                            </p>
-                            <p className="mt-2 text-sm text-gray-500">
+                            </h5>
+                            <p className="mt-2 text-md text-gray-500">
                                 {item.label}
                             </p>
                         </div>
@@ -68,12 +68,12 @@ export default function About() {
             </section>
 
             {/* What We Do */}
-            <section className="py-16 relative bg-gradient-to-t from-blue-50 to-white">
+            <section className="py-16 px-3 relative bg-gradient-to-t from-blue-50 to-white">
                 <h2 className="text-3xl font-semibold text-center mb-10">
                     What We Offer
                 </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 max-w-6xl mx-auto ">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-4 max-w-6xl mx-auto ">
                     {[
                         {
                             title: "Convert files between formats",
@@ -110,7 +110,7 @@ export default function About() {
             </section>
 
             {/* Values / Principles */}
-            <section className="py-20 px-6 bg-white">
+            <section className="py-20 px-3 bg-white">
                 {/* Heading */}
                 <div className="text-center mb-12">
                     <h2 className="text-3xl font-semibold text-gray-900">
@@ -120,7 +120,7 @@ export default function About() {
                 </div>
 
                 {/* Service Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 max-w-6xl mx-auto mb-12">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-4 max-w-6xl mx-auto mb-12">
                     {[
                         {
                             title: "Security first — We protect your files.",
