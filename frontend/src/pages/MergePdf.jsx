@@ -18,10 +18,10 @@ export default function MergePdf() {
     "Merge PDF Online – Combine PDF Files Free & Secure";
 
   const pageDesc =
-    "Merge PDF files online for free. Combine multiple PDF documents into one file quickly and securely. No signup required, supports up to 5 PDFs.";
+    "Select multiple PDF files and merge them in seconds. Merge & combine PDF files online easily, fast, and free — no signup required.";
 
   const pageKeywords =
-    "merge pdf online, combine pdf files, join pdf online, pdf merger free, merge multiple pdfs";
+    "merge pdf, combine pdf,merge pdf online, merge pdf documents, pdf to pdf merge, merge pdf documents online, pdf concatenate online, pdf splitter software, merge all pdfs, combine pdf combine, merge pdf and pdf, merge pdf to pdf online, pdf merge software online, pdf to pdf merge online";
 
   /* ================= STATE ================= */
   const [files, setFiles] = useState([]);
@@ -108,8 +108,8 @@ export default function MergePdf() {
       {/* ================= SEO ================= */}
       <Helmet>
         <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} />
-        <meta name="keywords" content={pageKeywords} />
+        <meta name="description" content={pageDesc} key="description" />
+        <meta name="keywords" content={pageKeywords} key="keywords" />
       </Helmet>
 
       {/* ================= TOOL ================= */}
