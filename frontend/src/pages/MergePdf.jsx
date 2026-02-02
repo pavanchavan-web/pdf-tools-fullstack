@@ -113,11 +113,10 @@ export default function MergePdf() {
       </Helmet>
 
       {/* ================= TOOL ================= */}
-      <ToolLayout 
-      title="Merge PDF Online" 
-      description="Combine PDF files in the order you want using the easiest PDF merger available. 
-      Fast, secure, and free to use.">
-        
+      <ToolLayout
+        title="Merge PDF Online"
+        description="Combine PDF files in the order you want using the easiest PDF merger available. Fast, secure, and free to use.">
+
         <ProcessingOverlay
           visible={visible}
           progress={progress}

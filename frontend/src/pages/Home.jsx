@@ -197,13 +197,13 @@ export default function Home() {
         </title>
 
         <meta
-          name="description"
+          name="description" key="description"
           content="Free online PDF and image tools to merge, split, compress, and convert files. Use JPG, PNG, WEBP, AVIF tools instantly with fast, secure access."
         />
 
         <meta
-          name="keywords"
-          content="pdf tools online, image tools online, merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools"
+          name="keywords" key="keywords"
+          content="merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools, jpg to pdf, pdfcompress, image to pdf, pdf to image"
         />
 
         {/* ✅ STRUCTURED DATA (JSON-LD) */}

@@ -1,6 +1,20 @@
+import { Helmet } from "react-helmet-async";
+
 export default function TermsConditions() {
   return (
     <div>
+      {/* ================= SEO ================= */}
+      <Helmet>
+        <title>Terms and Conditions – Website Use and Policies</title>
+        <meta name="description" key="description"
+          content="Read the terms and conditions governing the use of ConvertZip services, tools, and website content."
+        />
+        <meta
+          name="keywords" key="keywords"
+          content="merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools, jpg to pdf, pdfcompress, image to pdf, pdf to image"
+        />
+      </Helmet>
+
       <section className="border-b bg-white legal-header">
         <div className="mx-auto px-4 md:px-6 md:py-20 text-center space-y-6">
           <h1 className="mb-2">Terms & Conditions</h1>

@@ -17,7 +17,7 @@ export default function SplitPdf() {
     "Split PDF files online for free. Separate PDF pages into individual files instantly. Fast, secure PDF splitter with no signup required.";
 
   const pageKeywords =
-    "split pdf online, separate pdf pages, pdf splitter free, extract pdf pages, split pdf into pages";
+    "split pdf, split pdf document, split and combine pdf, pdf splitter software, unmerge pdf documents, dismerge pdf, pdf doc splitter, pdf pdf splitter, pdf splıt, pdf to pdf split, split pdf pdf, split split pdf";
 
   /* ================= STATE ================= */
   const [file, setFile] = useState(null);
@@ -67,12 +67,15 @@ export default function SplitPdf() {
       {/* ================= SEO ================= */}
       <Helmet>
         <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} />
-        <meta name="keywords" content={pageKeywords} />
+        <meta name="description" content={pageDesc} key="description" />
+        <meta name="keywords" content={pageKeywords} key="keywords" />
       </Helmet>
 
       {/* ================= TOOL ================= */}
-      <ToolLayout title={pageTitle} description={pageDesc}>
+      <ToolLayout
+        title="Split PDF Online"
+        description="Turn any PDF into separate files by extracting single pages or splitting the whole document.">
+
         {/* 🔄 Progress Overlay */}
         <ProcessingOverlay
           visible={visible}

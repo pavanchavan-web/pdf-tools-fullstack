@@ -1,6 +1,24 @@
+import { Helmet } from "react-helmet-async";
+
 export default function About() {
     return (
         <main className="bg-white text-gray-800">
+
+            <Helmet>
+                {/* Basic SEO */}
+                <title>
+                    ConvertZip helps users manage PDF files with simple and powerful online tools.
+                </title>
+
+                <meta
+                    name="description" key="description"
+                    content="ConvertZip provides fast and easy online tools to manage, convert, compress, and organize PDF files securely."
+                />
+                <meta
+                    name="keywords" key="keywords"
+                    content="merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools, jpg to pdf, pdfcompress, image to pdf, pdf to image"
+                />
+            </Helmet>
 
             {/* Hero */}
             <section className="bg-gradient-to-br from-indigo-50 to-white py-24 text-center justify-center align-middle items-center flex">

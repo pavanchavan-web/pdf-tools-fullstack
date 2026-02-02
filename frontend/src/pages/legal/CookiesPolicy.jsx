@@ -1,8 +1,20 @@
-
+import { Helmet } from "react-helmet-async";
 
 export default function CookiesPolicy() {
   return (
-    <div>
+    <>
+      {/* ================= SEO ================= */}
+      <Helmet>
+        <title>Cookies Policy – Information About Cookies on ConvertZip</title>
+        <meta name="description" key="description"
+          content="Learn how ConvertZip uses cookies to improve website performance, user experience, and security, and how you can manage your preferences."
+        />
+        <meta
+          name="keywords" key="keywords"
+          content="merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools, jpg to pdf, pdfcompress, image to pdf, pdf to image"
+        />
+      </Helmet>
+
       <section className="border-b bg-white legal-header">
         <div className="mx-auto px-4 md:px-6 md:py-20 text-center space-y-6">
           <h1 className="mb-2">Cookies Policy</h1>
@@ -51,6 +63,6 @@ export default function CookiesPolicy() {
           Last updated: {new Date().toDateString()}
         </p>
       </div>
-    </div>
+    </>
   );
 }

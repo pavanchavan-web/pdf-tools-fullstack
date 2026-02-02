@@ -29,7 +29,7 @@ export default function ImageToPdf() {
     "Convert images to PDF online for free. Combine JPG, PNG, and WEBP images into a single high-quality PDF. Fast, secure, no signup required.";
 
   const pageKeywords =
-    "image to pdf converter, jpg to pdf, png to pdf, webp to pdf, convert images to pdf online, free image to pdf";
+    "jpg to pdf, pdf to jpg, image to pdf, jpeg pdf, pics into pdf, pdf to pic, format pdf to jpg, format jpg to pdf, jpg and pdf, jpg and pdf to pdf, jpg in to pdf, jpg to to pdf, jpg top df, jpgt o pdf, pdf and jpg, pdf in to jpg, pdf pdf to jpg, pdf t0 jpg, pdf to jpg jpeg, pdf to to jpg";
 
   /* ================= STATE ================= */
   const [files, setFiles] = useState([]);
@@ -147,11 +147,13 @@ export default function ImageToPdf() {
       {/* ================= SEO ================= */}
       <Helmet>
         <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} />
-        <meta name="keywords" content={pageKeywords} />
+        <meta name="description" content={pageDesc} key="description" />
+        <meta name="keywords" content={pageKeywords} key="keywords" />
       </Helmet>
 
-      <ToolLayout title={pageTitle} description={pageDesc}>
+      <ToolLayout 
+      title="Images to PDF Converter Online" 
+      description="Images to PDF converter online to convert JPG, PNG, and WEBP images into a single PDF file easily.">
 
         <ProcessingOverlay
           visible={visible}

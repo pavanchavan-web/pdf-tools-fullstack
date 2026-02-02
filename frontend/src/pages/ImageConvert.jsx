@@ -39,7 +39,7 @@ export default function ImageConvert({
     "Convert images online for free between JPG, PNG, WEBP, AVIF, BMP, GIF, SVG, and TIFF. Fast, secure image converter with no signup required.";
 
   const pageKeywords =
-    "image converter online, free image converter, jpg to png converter, png to jpg converter, webp converter, avif image converter, convert images online, bulk image converter";
+    "wepb to png, webp to jpeg, png to jpg, jpg to png, jpg converter, convert image to jpg, png to jpeg, convert jpeg to jpg, jpeg to jpg, convert pic to jpg, change image to jpg, convert picture to jpeg, picture to jpg, jpeg image converter, change to jpg, convert to jpeg format, convert pic to jpeg, avif to jpg, pic to jpg, png file to jpg, jpg into png, web to png, convert jpg to, convert jpg to jpg, img jpg, jpeg convert to jpg, webp for jpg, webp in png, webp into jpeg, webp tojpeg";
 
   /* ================= STATE ================= */
   const [items, setItems] = useState([]);
@@ -153,12 +153,15 @@ export default function ImageConvert({
       {/* ================= SEO ================= */}
       <Helmet>
         <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} />
-        <meta name="keywords" content={pageKeywords} />
+        <meta name="description" content={pageDesc} key="description" />
+        <meta name="keywords" content={pageKeywords} key="keywords" />
       </Helmet>
        
       {/* ================= TOOL LAYOUT ================= */}
-      <ToolLayout title={pageTitle} description={pageDesc}>
+      <ToolLayout 
+      title="Image Converter Online" 
+      description="Image converter online to convert JPG, PNG, WEBP, and AVIF images into your desired format easily.">
+
         <ProcessingOverlay visible={visible} progress={progress} text={text} />
 
         {items.length === 0 && !zipBlob && !visible && (

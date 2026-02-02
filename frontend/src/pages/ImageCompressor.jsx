@@ -16,13 +16,13 @@ const MAX_TOTAL_SIZE = 1024 * 1024 * 1024;
 export default function ImageCompressor() {
   /* ================= SEO ================= */
   const pageTitle =
-    "AI Image Compressor Online – Reduce Image Size Without Losing Quality";
+    "Image Compressor Online – Reduce Image Size Without Losing Quality";
 
   const pageDesc =
     "Compress images online using AI-powered image compression. Reduce image size without quality loss. Supports JPG, PNG, WEBP, AVIF formats. Free & secure.";
 
   const pageKeywords =
-    "ai image compressor, image compressor online, reduce image size, compress images online, image optimization tool, webp image compression, avif image compression";
+    "image compressor, reduce image size, photo compressor, compress jpeg, photo size reducer, picture compressor, reduce size of jpg, reduce picture size, jpg compress, jpeg size reducer, lower image size, minimize photo size, photo resizer in kb, pic compressor, minimize picture size, reduce image resolution";
 
   /* ================= STATE ================= */
   const [files, setFiles] = useState([]);
@@ -158,12 +158,15 @@ export default function ImageCompressor() {
       {/* ================= SEO ================= */}
       <Helmet>
         <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} />
-        <meta name="keywords" content={pageKeywords} />
+        <meta name="description" content={pageDesc} key="description" />
+        <meta name="keywords" content={pageKeywords} key="keywords" />
       </Helmet>
 
       {/* ================= TOOL LAYOUT ================= */}
-      <ToolLayout title={pageTitle} description={pageDesc}>
+      <ToolLayout 
+      title="Image Compressor Online" 
+      description="Image compressor online to reduce image file size without losing quality. Compress JPG, PNG, WEBP, and AVIF images easily.">
+
         <ProcessingOverlay visible={visible} progress={progress} text={text} />
 
         {!files.length && !zipBlob && !visible && (

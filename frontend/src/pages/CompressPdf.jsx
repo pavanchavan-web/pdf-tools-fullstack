@@ -17,7 +17,7 @@ export default function CompressPdf() {
     "Compress PDF files online for free. Reduce PDF file size without losing quality. Fast, secure PDF compressor with no signup required.";
 
   const pageKeywords =
-    "compress pdf online, reduce pdf size, pdf compressor free, shrink pdf file, optimize pdf";
+    "compress pdf, compress pdf document, pdfcompress, pdf to pdf compress, compress pdf to pdf, compress pdf doc, compress compressed pdf, compress data pdf, compress into pdf, compressor compress pdf, hipdf compress, pdf compress pdf, pdf compressor pdf, pdf pdf compressor, pdf to compressedf";
 
   /* ================= STATE ================= */
   const [file, setFile] = useState(null);
@@ -69,12 +69,15 @@ export default function CompressPdf() {
       {/* ================= SEO ================= */}
       <Helmet>
         <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} />
-        <meta name="keywords" content={pageKeywords} />
+        <meta name="description" content={pageDesc} key="description" />
+        <meta name="keywords" content={pageKeywords} key="keywords" />
       </Helmet>
 
       {/* ================= TOOL ================= */}
-      <ToolLayout title={pageTitle} description={pageDesc}>
+      <ToolLayout 
+      title="Compress PDF Online" 
+      description="Compress PDF online to reduce PDF file size without losing quality. Fast, secure, and free PDF compression tool.">
+
         {/* 🔄 Progress Overlay */}
         <ProcessingOverlay
           visible={visible}

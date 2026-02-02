@@ -67,12 +67,15 @@ export default function PdfImageExtractor() {
       {/* ================= SEO ================= */}
       <Helmet>
         <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} />
-        <meta name="keywords" content={pageKeywords} />
+        <meta name="description" content={pageDesc} key="description" />
+        <meta name="keywords" content={pageKeywords} key="keywords" />
       </Helmet>
 
       {/* ================= TOOL ================= */}
-      <ToolLayout title={pageTitle} description={pageDesc}>
+      <ToolLayout
+        title="Extract Images from PDF Online"
+        description="Extract images from PDF files online. Save all embedded PDF images as separate files quickly and securely.">
+
         {/* 🔄 Progress Overlay */}
         <ProcessingOverlay
           visible={visible}
