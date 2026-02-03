@@ -63,22 +63,30 @@ export default function Contact() {
     return (
         <div>
             <Helmet>
-                {/* Basic SEO */}
-                <title>
-                    Contact us to resolve all your questions about using ConvertZip tools to manage PDF files.
-                </title>
+                {/* Title */}
+                <title>Contact Us – ConvertZip PDF & Image Tools</title>
 
+                {/* Meta description */}
                 <meta
                     name="description"
-                    content="Contact us for help and answers to all your questions about ConvertZip PDF management tools.
-"
+                    content="Contact ConvertZip for support, questions, or feedback about our free PDF and image conversion tools."
+                />
+
+                {/* Open Graph */}
+                <meta
+                    property="og:title"
+                    content="Contact ConvertZip – PDF & Image Tool Support"
                 />
                 <meta
-                    name="keywords"
-                    content="merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools, jpg to pdf, pdfcompress, image to pdf, pdf to image"
+                    property="og:description"
+                    content="Need help with ConvertZip tools? Contact our support team for quick assistance."
+                />
+                <meta
+                    property="og:url"
+                    content={window.location.href}
                 />
             </Helmet>
-            
+
             <section className="relative min-h-screen bg-gradient-to-br from-indigo-50 via-white to-orange-50 py-20" id="contact">
                 <div className="max-w-4xl mx-auto px-4">
 

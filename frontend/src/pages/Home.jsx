@@ -191,19 +191,29 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-slate-50 text-gray-800">
       {/* ================= SEO ================= */}
       <Helmet>
-        {/* Basic SEO */}
+        {/* Title */}
         <title>
-          Free PDF & Image Tools – Merge, Compress & Convert Online
+          ConvertZip – Free PDF & Image Tools | Merge, Compress & Convert
         </title>
 
+        {/* Meta Description */}
         <meta
-          name="description" key="description"
-          content="Free online PDF and image tools to merge, split, compress, and convert files. Use JPG, PNG, WEBP, AVIF tools instantly with fast, secure access."
+          name="description"
+          content="ConvertZip offers free online PDF and image tools to merge, split, compress, and convert files. Fast, secure, and easy to use."
         />
 
+        {/* Open Graph */}
         <meta
-          name="keywords" key="keywords"
-          content="merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools, jpg to pdf, pdfcompress, image to pdf, pdf to image"
+          property="og:title"
+          content="ConvertZip – Free PDF & Image Tools"
+        />
+        <meta
+          property="og:description"
+          content="Free PDF and image tools to merge, compress, and convert files online. Fast, secure & easy."
+        />
+        <meta
+          property="og:url"
+          content="https://convertzip.com/"
         />
 
         {/* ✅ STRUCTURED DATA (JSON-LD) */}
