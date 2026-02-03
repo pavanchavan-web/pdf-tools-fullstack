@@ -31,6 +31,7 @@ export default function CookiesPolicy() {
           property="og:type"
           content="website"
         />
+        <meta property="og:image" content="https://convertzip.com/og/convertzip.png" />
       </Helmet>
 
       <section className="border-b bg-white legal-header">

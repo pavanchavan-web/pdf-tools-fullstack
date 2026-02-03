@@ -63,17 +63,13 @@ export default function BlogPost() {
                 {/* OG Image (featured image preferred) */}
                 <meta
                     property="og:image"
-                    content={post.featuredImage || "https://convertzip.com/og-blog.png"}
+                    content={post.featuredImage || "https://convertzip.com/og/convertzip.png"}
                 />
 
                 {/* Optional Article Meta (extra SEO boost) */}
                 <meta
                     property="article:published_time"
                     content={post.publishedAt}
-                />
-                <meta
-                    property="article:author"
-                    content="ConvertZip"
                 />
             </Helmet>
 

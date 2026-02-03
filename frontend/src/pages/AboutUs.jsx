@@ -32,6 +32,7 @@ export default function About() {
                     property="og:type"
                     content="website"
                 />
+                <meta property="og:image" content="https://convertzip.com/og/convertzip.png" />
             </Helmet>
 
             {/* Hero */}

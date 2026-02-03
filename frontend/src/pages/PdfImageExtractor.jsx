@@ -84,6 +84,7 @@ export default function PdfImageExtractor() {
           property="og:type"
           content="website"
         />
+        <meta property="og:image" content="https://convertzip.com/og/extract-images.png" />
       </Helmet>
 
 

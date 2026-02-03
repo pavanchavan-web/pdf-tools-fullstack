@@ -175,6 +175,7 @@ export default function ImageCompressor() {
           property="og:type"
           content="website"
         />
+        <meta property="og:image" content="https://convertzip.com/og/images-compressor.png" />
       </Helmet>
 
       {/* ================= TOOL LAYOUT ================= */}

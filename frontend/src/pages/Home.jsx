@@ -219,7 +219,7 @@ export default function Home() {
           property="og:type"
           content="website"
         />
-        <meta property="og:image" content="https://convertzip.com/og-image.png" />
+        <meta property="og:image" content="https://convertzip.com/og/convertzip.png" />
 
         {/* ✅ STRUCTURED DATA (JSON-LD) */}
         <script type="application/ld+json">

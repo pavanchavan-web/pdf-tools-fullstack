@@ -57,6 +57,7 @@ export default function Blog() {
           property="og:type"
           content="website"
         />
+        <meta property="og:image" content="https://convertzip.com/og/convertzip.png" />
       </Helmet>
 
       <section className="relative min-h-screen bg-gradient-to-br from-indigo-50 via-white to-orange-50 py-20" id="blogs">

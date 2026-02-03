@@ -84,6 +84,7 @@ export default function SplitPdf() {
           property="og:type"
           content="website"
         />
+        <meta property="og:image" content="https://convertzip.com/og/split-pdf.png" />
       </Helmet>
 
 

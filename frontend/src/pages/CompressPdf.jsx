@@ -86,6 +86,7 @@ export default function CompressPdf() {
           property="og:type"
           content="website"
         />
+        <meta property="og:image" content="https://convertzip.com/og/compress-pdf.png" />
       </Helmet>
 
 
