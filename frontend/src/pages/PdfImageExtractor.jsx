@@ -9,16 +9,6 @@ import useProgress from "../hooks/useProgress";
 import { postFile } from "../utils/api";
 
 export default function PdfImageExtractor() {
-  /* ================= SEO ================= */
-  const pageTitle =
-    "Extract Images from PDF Online – Download PDF Images Free";
-
-  const pageDesc =
-    "Extract images from PDF files online for free. Download all embedded images from a PDF in original quality. Fast, secure, no signup required.";
-
-  const pageKeywords =
-    "extract images from pdf, pdf image extractor, pdf to images, download images from pdf, pdf image extraction tool";
-
   /* ================= STATE ================= */
   const [file, setFile] = useState(null);
   const [zipBlob, setZipBlob] = useState(null);
@@ -66,10 +56,36 @@ export default function PdfImageExtractor() {
     <>
       {/* ================= SEO ================= */}
       <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} key="description" />
-        <meta name="keywords" content={pageKeywords} key="keywords" />
+        {/* Title */}
+        <title>
+          Extract Images from PDF Online – Download PDF Images | ConvertZip
+        </title>
+
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content="Extract images from PDF files online for free with ConvertZip. Download all embedded PDF images in original quality. Fast, secure, no signup required."
+        />
+
+        {/* Open Graph */}
+        <meta
+          property="og:title"
+          content="Extract Images from PDF Online – Download PDF Images | ConvertZip"
+        />
+        <meta
+          property="og:description"
+          content="Download all images from PDF files online in original quality using ConvertZip. Free, fast & secure PDF image extractor."
+        />
+        <meta
+          property="og:url"
+          content={window.location.href}
+        />
+        <meta
+          property="og:type"
+          content="website"
+        />
       </Helmet>
+
 
       {/* ================= TOOL ================= */}
       <ToolLayout

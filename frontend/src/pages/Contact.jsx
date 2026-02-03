@@ -61,7 +61,7 @@ export default function Contact() {
     ]
 
     return (
-        <div>
+        <>
             <Helmet>
                 {/* Title */}
                 <title>Contact Us – ConvertZip PDF & Image Tools</title>
@@ -84,6 +84,10 @@ export default function Contact() {
                 <meta
                     property="og:url"
                     content={window.location.href}
+                />
+                <meta
+                    property="og:type"
+                    content="website"
                 />
             </Helmet>
 
@@ -187,7 +191,7 @@ export default function Contact() {
                     </div>
                 </div>
             </section>
-        </div>
+        </>
     );
 }
 

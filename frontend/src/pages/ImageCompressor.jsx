@@ -171,6 +171,10 @@ export default function ImageCompressor() {
           property="og:url"
           content={window.location.href}
         />
+        <meta
+          property="og:type"
+          content="website"
+        />
       </Helmet>
 
       {/* ================= TOOL LAYOUT ================= */}

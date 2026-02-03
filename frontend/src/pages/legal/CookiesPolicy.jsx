@@ -5,13 +5,31 @@ export default function CookiesPolicy() {
     <>
       {/* ================= SEO ================= */}
       <Helmet>
-        <title>Cookies Policy – Information About Cookies on ConvertZip</title>
-        <meta name="description" key="description"
-          content="Learn how ConvertZip uses cookies to improve website performance, user experience, and security, and how you can manage your preferences."
+        {/* Title */}
+        <title>Cookies Policy – ConvertZip</title>
+
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content="Read ConvertZip’s Cookies Policy to understand how we use cookies to improve website performance, security, and user experience, and how you can manage your preferences."
+        />
+
+        {/* Open Graph */}
+        <meta
+          property="og:title"
+          content="Cookies Policy – ConvertZip"
         />
         <meta
-          name="keywords" key="keywords"
-          content="merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools, jpg to pdf, pdfcompress, image to pdf, pdf to image"
+          property="og:description"
+          content="Learn how ConvertZip uses cookies and how you can manage your cookie preferences."
+        />
+        <meta
+          property="og:url"
+          content={window.location.href}
+        />
+        <meta
+          property="og:type"
+          content="website"
         />
       </Helmet>
 

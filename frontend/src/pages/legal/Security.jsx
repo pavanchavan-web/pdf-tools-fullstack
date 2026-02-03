@@ -5,13 +5,31 @@ export default function Security() {
     <div>
       {/* ================= SEO ================= */}
       <Helmet>
-        <title>Security – File Protection and Data Safety at ConvertZip</title>
-        <meta name="description" key="description"
-          content="Learn how ConvertZip keeps your files secure with strong data protection, encryption, and safe file handling practices."
+        {/* Title */}
+        <title>Security – ConvertZip</title>
+
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content="Learn how ConvertZip protects your files and data using secure file handling, encryption, and industry-standard safety practices."
+        />
+
+        {/* Open Graph */}
+        <meta
+          property="og:title"
+          content="Security – ConvertZip"
         />
         <meta
-          name="keywords" key="keywords"
-          content="merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools, jpg to pdf, pdfcompress, image to pdf, pdf to image"
+          property="og:description"
+          content="Discover how ConvertZip ensures file security, data protection, and safe processing for all users."
+        />
+        <meta
+          property="og:url"
+          content={window.location.href}
+        />
+        <meta
+          property="og:type"
+          content="website"
         />
       </Helmet>
 

@@ -29,13 +29,33 @@ export default function Blog() {
     <div>
       {/* ================= SEO ================= */}
       <Helmet>
-        <title>Blog | PDF Tools, Image Conversion & File Management Tips</title>
-        <meta name="description" key="description"
-        content="Blog articles covering PDF tools, image conversion, compression, and document management." 
+        {/* Title */}
+        <title>
+          Blog – PDF Tools, Image Conversion & File Tips | ConvertZip
+        </title>
+
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content="Read ConvertZip blog articles covering PDF tools, image conversion, compression tips, and document management guides."
+        />
+
+        {/* Open Graph */}
+        <meta
+          property="og:title"
+          content="ConvertZip Blog – PDF & Image Tool Guides"
         />
         <meta
-          name="keywords" key="keywords"
-          content="merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools, jpg to pdf, pdfcompress, image to pdf, pdf to image"
+          property="og:description"
+          content="Tips, tutorials, and guides on PDF tools, image conversion, compression, and file management."
+        />
+        <meta
+          property="og:url"
+          content={window.location.href}
+        />
+        <meta
+          property="og:type"
+          content="website"
         />
       </Helmet>
 

@@ -33,9 +33,50 @@ export default function BlogPost() {
         <div className="bg-white">
             {/* SEO */}
             <Helmet>
+                {/* Title */}
                 <title>{post.title} | ConvertZip Blog</title>
-                <meta name="description" body={post.excerpt} />
+
+                {/* Meta Description */}
+                <meta
+                    name="description"
+                    content={post.excerpt}
+                />
+
+                {/* Open Graph – Article */}
+                <meta
+                    property="og:title"
+                    content={`${post.title} | ConvertZip Blog`}
+                />
+                <meta
+                    property="og:description"
+                    content={post.excerpt}
+                />
+                <meta
+                    property="og:url"
+                    content={window.location.href}
+                />
+                <meta
+                    property="og:type"
+                    content="article"
+                />
+
+                {/* OG Image (featured image preferred) */}
+                <meta
+                    property="og:image"
+                    content={post.featuredImage || "https://convertzip.com/og-blog.png"}
+                />
+
+                {/* Optional Article Meta (extra SEO boost) */}
+                <meta
+                    property="article:published_time"
+                    content={post.publishedAt}
+                />
+                <meta
+                    property="article:author"
+                    content="ConvertZip"
+                />
             </Helmet>
+
 
             <div className="mb-4 leading-tight bg-gray-100 text-center py-20 flex flex-col items-center justify-center gap-[30px]">
                 {/* TITLE */}

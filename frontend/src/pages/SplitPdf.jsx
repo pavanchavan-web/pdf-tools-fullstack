@@ -9,16 +9,6 @@ import useProgress from "../hooks/useProgress";
 import { postFile } from "../utils/api";
 
 export default function SplitPdf() {
-  /* ================= SEO ================= */
-  const pageTitle =
-    "Split PDF Online – Separate PDF Pages Free & Fast";
-
-  const pageDesc =
-    "Split PDF files online for free. Separate PDF pages into individual files instantly. Fast, secure PDF splitter with no signup required.";
-
-  const pageKeywords =
-    "split pdf, split pdf document, split and combine pdf, pdf splitter software, unmerge pdf documents, dismerge pdf, pdf doc splitter, pdf pdf splitter, pdf splıt, pdf to pdf split, split pdf pdf, split split pdf";
-
   /* ================= STATE ================= */
   const [file, setFile] = useState(null);
   const [zipBlob, setZipBlob] = useState(null);
@@ -66,10 +56,36 @@ export default function SplitPdf() {
     <>
       {/* ================= SEO ================= */}
       <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} key="description" />
-        <meta name="keywords" content={pageKeywords} key="keywords" />
+        {/* Title */}
+        <title>
+          Split PDF Online – Separate PDF Pages Free | ConvertZip
+        </title>
+
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content="Split PDF files online for free with ConvertZip. Separate PDF pages into individual files instantly. Fast, secure PDF splitter with no signup required."
+        />
+
+        {/* Open Graph */}
+        <meta
+          property="og:title"
+          content="Split PDF Online – Separate PDF Pages Free | ConvertZip"
+        />
+        <meta
+          property="og:description"
+          content="Split PDF documents into separate pages online for free using ConvertZip. Fast, secure, and easy to use."
+        />
+        <meta
+          property="og:url"
+          content={window.location.href}
+        />
+        <meta
+          property="og:type"
+          content="website"
+        />
       </Helmet>
+
 
       {/* ================= TOOL ================= */}
       <ToolLayout

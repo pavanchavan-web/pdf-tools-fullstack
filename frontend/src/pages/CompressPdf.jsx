@@ -9,16 +9,6 @@ import useProgress from "../hooks/useProgress";
 import { postFile } from "../utils/api";
 
 export default function CompressPdf() {
-  /* ================= SEO ================= */
-  const pageTitle =
-    "Compress PDF Online – Reduce PDF File Size Free";
-
-  const pageDesc =
-    "Compress PDF files online for free. Reduce PDF file size without losing quality. Fast, secure PDF compressor with no signup required.";
-
-  const pageKeywords =
-    "compress pdf, compress pdf document, pdfcompress, pdf to pdf compress, compress pdf to pdf, compress pdf doc, compress compressed pdf, compress data pdf, compress into pdf, compressor compress pdf, hipdf compress, pdf compress pdf, pdf compressor pdf, pdf pdf compressor, pdf to compressedf";
-
   /* ================= STATE ================= */
   const [file, setFile] = useState(null);
   const [resultUrl, setResultUrl] = useState(null);
@@ -68,15 +58,41 @@ export default function CompressPdf() {
     <>
       {/* ================= SEO ================= */}
       <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} key="description" />
-        <meta name="keywords" content={pageKeywords} key="keywords" />
+        {/* Title */}
+        <title>
+          Compress PDF Online – Reduce PDF File Size Free | ConvertZip
+        </title>
+
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content="Compress PDF files online for free with ConvertZip. Reduce PDF file size without losing quality. Fast, secure PDF compressor with no signup required."
+        />
+
+        {/* Open Graph */}
+        <meta
+          property="og:title"
+          content="Compress PDF Online – Reduce PDF File Size Free | ConvertZip"
+        />
+        <meta
+          property="og:description"
+          content="Reduce PDF file size online without quality loss using ConvertZip PDF compressor. Fast, secure, and free."
+        />
+        <meta
+          property="og:url"
+          content={window.location.href}
+        />
+        <meta
+          property="og:type"
+          content="website"
+        />
       </Helmet>
 
+
       {/* ================= TOOL ================= */}
-      <ToolLayout 
-      title="Compress PDF Online" 
-      description="Compress PDF online to reduce PDF file size without losing quality. Fast, secure, and free PDF compression tool.">
+      <ToolLayout
+        title="Compress PDF Online"
+        description="Compress PDF online to reduce PDF file size without losing quality. Fast, secure, and free PDF compression tool.">
 
         {/* 🔄 Progress Overlay */}
         <ProcessingOverlay

@@ -213,8 +213,13 @@ export default function Home() {
         />
         <meta
           property="og:url"
-          content="https://convertzip.com/"
+          content={window.location.href}
         />
+        <meta
+          property="og:type"
+          content="website"
+        />
+        <meta property="og:image" content="https://convertzip.com/og-image.png" />
 
         {/* ✅ STRUCTURED DATA (JSON-LD) */}
         <script type="application/ld+json">

@@ -29,18 +29,6 @@ export default function ImageConvert({
   desc,
   maxText = "Max 20 images per upload.",
 }) {
-  /* ================= SEO CONTENT ================= */
-  const pageTitle =
-    title ||
-    "Image Converter Online – Free JPG, PNG, WEBP, AVIF Converter";
-
-  const pageDesc =
-    desc ||
-    "Convert images online for free between JPG, PNG, WEBP, AVIF, BMP, GIF, SVG, and TIFF. Fast, secure image converter with no signup required.";
-
-  const pageKeywords =
-    "wepb to png, webp to jpeg, png to jpg, jpg to png, jpg converter, convert image to jpg, png to jpeg, convert jpeg to jpg, jpeg to jpg, convert pic to jpg, change image to jpg, convert picture to jpeg, picture to jpg, jpeg image converter, change to jpg, convert to jpeg format, convert pic to jpeg, avif to jpg, pic to jpg, png file to jpg, jpg into png, web to png, convert jpg to, convert jpg to jpg, img jpg, jpeg convert to jpg, webp for jpg, webp in png, webp into jpeg, webp tojpeg";
-
   /* ================= STATE ================= */
   const [items, setItems] = useState([]);
   const [commonOutput, setCommonOutput] = useState(targetFormat);
@@ -152,15 +140,40 @@ export default function ImageConvert({
     <>
       {/* ================= SEO ================= */}
       <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} key="description" />
-        <meta name="keywords" content={pageKeywords} key="keywords" />
+        {/* Title */}
+        <title>
+          Image Converter Online – JPEG, PNG, WEBP, AVIF, SVG, GIF, TIFF | ConvertZip
+        </title>
+
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content="Convert images online for free with ConvertZip. Convert JPG, PNG, WEBP, AVIF, BMP, GIF, SVG, and TIFF files instantly. Fast & secure."
+        />
+
+        {/* Open Graph */}
+        <meta
+          property="og:title"
+          content="Image Converter Online – JPEG, PNG, WEBP, AVIF, SVG, GIF, TIFF | ConvertZip"
+        />
+        <meta
+          property="og:description"
+          content="Free online image converter supporting JPG, PNG, WEBP, AVIF, BMP, GIF, SVG & TIFF formats."
+        />
+        <meta
+          property="og:url"
+          content={window.location.href}
+        />
+        <meta
+          property="og:type"
+          content="website"
+        />
       </Helmet>
-       
+
       {/* ================= TOOL LAYOUT ================= */}
-      <ToolLayout 
-      title="Image Converter Online" 
-      description="Image converter online to convert JPG, PNG, WEBP, and AVIF images into your desired format easily.">
+      <ToolLayout
+        title="Image Converter Online"
+        description="Image converter online to convert JPG, PNG, WEBP, and AVIF images into your desired format easily.">
 
         <ProcessingOverlay visible={visible} progress={progress} text={text} />
 

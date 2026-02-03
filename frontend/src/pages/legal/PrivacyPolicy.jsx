@@ -5,13 +5,31 @@ export default function PrivacyPolicy() {
         <div>
             {/* ================= SEO ================= */}
             <Helmet>
-                <title>Privacy Policy – Data Collection and Usage at ConvertZip</title>
-                <meta name="description" key="description"
-                    content="Learn how ConvertZip collects, uses, and protects your personal data and ensures privacy when using our online tools."
+                {/* Title */}
+                <title>Privacy Policy – ConvertZip</title>
+
+                {/* Meta Description */}
+                <meta
+                    name="description"
+                    content="Read ConvertZip’s Privacy Policy to understand how we collect, use, and protect your personal data while using our online PDF and image tools."
+                />
+
+                {/* Open Graph */}
+                <meta
+                    property="og:title"
+                    content="Privacy Policy – ConvertZip"
                 />
                 <meta
-                    name="keywords" key="keywords"
-                    content="merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools, jpg to pdf, pdfcompress, image to pdf, pdf to image"
+                    property="og:description"
+                    content="Learn how ConvertZip collects, uses, and safeguards your personal information."
+                />
+                <meta
+                    property="og:url"
+                    content={window.location.href}
+                />
+                <meta
+                    property="og:type"
+                    content="website"
                 />
             </Helmet>
 

@@ -5,13 +5,31 @@ export default function TermsConditions() {
     <div>
       {/* ================= SEO ================= */}
       <Helmet>
-        <title>Terms and Conditions – Website Use and Policies</title>
-        <meta name="description" key="description"
-          content="Read the terms and conditions governing the use of ConvertZip services, tools, and website content."
+        {/* Title */}
+        <title>Terms & Conditions – ConvertZip</title>
+
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content="Read ConvertZip’s Terms and Conditions governing the use of our website, services, and online PDF and image tools."
+        />
+
+        {/* Open Graph */}
+        <meta
+          property="og:title"
+          content="Terms & Conditions – ConvertZip"
         />
         <meta
-          name="keywords" key="keywords"
-          content="merge pdf, split pdf, compress pdf, image converter, jpg to pdf, png to pdf, webp converter, avif converter, free online tools, jpg to pdf, pdfcompress, image to pdf, pdf to image"
+          property="og:description"
+          content="Understand the terms and conditions for using ConvertZip services and website."
+        />
+        <meta
+          property="og:url"
+          content={window.location.href}
+        />
+        <meta
+          property="og:type"
+          content="website"
         />
       </Helmet>
 

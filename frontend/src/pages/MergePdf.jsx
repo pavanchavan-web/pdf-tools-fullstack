@@ -13,16 +13,6 @@ const MAX_FILES = 5;
 const MAX_TOTAL_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
 
 export default function MergePdf() {
-  /* ================= SEO ================= */
-  const pageTitle =
-    "Merge PDF Online – Combine PDF Files Free & Secure";
-
-  const pageDesc =
-    "Select multiple PDF files and merge them in seconds. Merge & combine PDF files online easily, fast, and free — no signup required.";
-
-  const pageKeywords =
-    "merge pdf, combine pdf, merge pdf online, merge pdf documents, pdf to pdf merge, merge pdf documents online, pdf concatenate online, pdf splitter software, merge all pdfs, combine pdf combine, merge pdf and pdf, merge pdf to pdf online, pdf merge software online, pdf to pdf merge online";
-
   /* ================= STATE ================= */
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -107,10 +97,36 @@ export default function MergePdf() {
     <>
       {/* ================= SEO ================= */}
       <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} key="description" />
-        <meta name="keywords" content={pageKeywords} key="keywords" />
+        {/* Title */}
+        <title>
+          Merge PDF Online – Combine PDF Files Free | ConvertZip
+        </title>
+
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content="Merge multiple PDF files online for free with ConvertZip. Combine PDF documents easily in seconds. Fast, secure, and no signup required."
+        />
+
+        {/* Open Graph */}
+        <meta
+          property="og:title"
+          content="Merge PDF Online – Combine PDF Files Free | ConvertZip"
+        />
+        <meta
+          property="og:description"
+          content="Combine and merge PDF files online for free using ConvertZip. Fast, secure PDF merging with no signup required."
+        />
+        <meta
+          property="og:url"
+          content={window.location.href}
+        />
+        <meta
+          property="og:type"
+          content="website"
+        />
       </Helmet>
+
 
       {/* ================= TOOL ================= */}
       <ToolLayout

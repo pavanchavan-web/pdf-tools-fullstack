@@ -21,16 +21,6 @@ const ALLOWED_TYPES = [
 ];
 
 export default function ImageToPdf() {
-  /* ================= SEO ================= */
-  const pageTitle =
-    "Image to PDF Converter Online – Convert JPG, PNG, WEBP to PDF Free";
-
-  const pageDesc =
-    "Convert images to PDF online for free. Combine JPG, PNG, and WEBP images into a single high-quality PDF. Fast, secure, no signup required.";
-
-  const pageKeywords =
-    "jpg to pdf, pdf to jpg, image to pdf, jpeg pdf, pics into pdf, pdf to pic, format pdf to jpg, format jpg to pdf, jpg and pdf, jpg and pdf to pdf, jpg in to pdf, jpg to to pdf, jpg top df, jpgt o pdf, pdf and jpg, pdf in to jpg, pdf pdf to jpg, pdf t0 jpg, pdf to jpg jpeg, pdf to to jpg";
-
   /* ================= STATE ================= */
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -146,14 +136,40 @@ export default function ImageToPdf() {
     <>
       {/* ================= SEO ================= */}
       <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} key="description" />
-        <meta name="keywords" content={pageKeywords} key="keywords" />
+        {/* Title */}
+        <title>
+          Image to PDF Converter Online – JPG, PNG, WEBP to PDF | ConvertZip
+        </title>
+
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content="Convert images to PDF online for free with ConvertZip. Combine JPG, PNG, and WEBP images into a single high-quality PDF. Fast, secure, no signup required."
+        />
+
+        {/* Open Graph */}
+        <meta
+          property="og:title"
+          content="Image to PDF Converter Online – JPG, PNG, WEBP to PDF | ConvertZip"
+        />
+        <meta
+          property="og:description"
+          content="Convert JPG, PNG, and WEBP images to PDF online for free. Combine multiple images into one PDF using ConvertZip."
+        />
+        <meta
+          property="og:url"
+          content={window.location.href}
+        />
+        <meta
+          property="og:type"
+          content="website"
+        />
       </Helmet>
 
-      <ToolLayout 
-      title="Images to PDF Converter Online" 
-      description="Images to PDF converter online to convert JPG, PNG, and WEBP images into a single PDF file easily.">
+
+      <ToolLayout
+        title="Images to PDF Converter Online"
+        description="Images to PDF converter online to convert JPG, PNG, and WEBP images into a single PDF file easily.">
 
         <ProcessingOverlay
           visible={visible}
