@@ -271,42 +271,92 @@ nav a:hover {
   background-color: #4f46e51c;
 }
 
-.faqicons{
+.faqicons {
   font-size: 1.5rem;
 }
 
-.reviews img{
+.reviews img {
   width: 90%;
   height: 190px;
   object-fit: cover;
   border-radius: 10px;
 }
 
-.prose p{
+.prose p {
   margin-bottom: 25px;
 }
 
-.blogpost-content ul{
-    font-size: 20px !important;
-    padding-left: 30px !important;
-    padding-bottom: 20px !important;
-    line-height: 30px !important;
-    list-style: disc !important;
+.blogpost-content ul {
+  font-size: 19px !important;
+  padding-left: 30px !important;
+  padding-bottom: 20px !important;
+  line-height: 30px !important;
+  list-style: disc !important;
 }
 
-.blogpost-content a{
+.blogpost-content a {
   color: #4f46e5;
 }
 
+.blogpost-content h1,
+.blogpost-content h2,
+.blogpost-content h3,
+.blogpost-content h4,
+.blogpost-content h5{
+  margin-bottom: 10px;
+  margin-top: 30px;
+}
+
 @media (max-width:768px) {
-  h1, h1 span{font-size: 35px !important; line-height:45px !important;}
-  .tool-content h1{font-size: 30px !important; line-height: 37px !important;}
-  p{font-size: 17px !important; line-height: 27px !important;}
-  .flex-grow div{padding-left: 8px; padding-right: 8px;}
-  br{display: none;}
-  .blog-post{padding: 12px}
-  .legal-header{padding: 30px !important}
-  .legal-content{padding: 20px !important}
-  h6.about-title{font-size: 28px !important; line-height: 40px !important;}
-  .about-sect h5{font-size: 45px !important; line-height: 65px !important;}
+  h1,
+  h1 span {
+    font-size: 35px !important;
+    line-height: 45px !important;
+  }
+
+  .tool-content h1 {
+    font-size: 30px !important;
+    line-height: 37px !important;
+  }
+
+  p {
+    font-size: 17px !important;
+    line-height: 25px !important;
+  }
+
+  .blogpost-content ul {
+    font-size: 17px !important;
+    line-height: 25px !important;
+  }
+
+  .flex-grow div {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  br {
+    display: none;
+  }
+
+  .blog-post {
+    padding: 12px
+  }
+
+  .legal-header {
+    padding: 30px !important
+  }
+
+  .legal-content {
+    padding: 20px !important
+  }
+
+  h6.about-title {
+    font-size: 28px !important;
+    line-height: 40px !important;
+  }
+
+  .about-sect h5 {
+    font-size: 45px !important;
+    line-height: 65px !important;
+  }
 }

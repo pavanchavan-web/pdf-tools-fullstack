@@ -193,7 +193,7 @@ export default function Home() {
       <Helmet>
         {/* Title */}
         <title>
-          ConvertZip – Free PDF & Image Tools | Merge, Compress & Convert
+          ConvertZip – Free PDF & Image Tools to Merge & Convert
         </title>
 
         {/* Meta Description */}
@@ -209,7 +209,7 @@ export default function Home() {
         />
         <meta
           property="og:description"
-          content="Free PDF and image tools to merge, compress, and convert files online. Fast, secure & easy."
+          content="Free online PDF and image tools to merge, split, compress, and convert files. Convert JPG, PNG, WEBP, AVIF, and PDF fast and securely."
         />
         <meta
           property="og:url"
@@ -423,7 +423,7 @@ export default function Home() {
             <div className="relative rounded-2xl overflow-hidden bg-black h-[320px]">
               <img
                 src={BG}
-                alt=""
+                alt="convertzip testimonial bg"
                 className="absolute inset-0 w-full h-full object-cover opacity-40"
               />
               <div className="relative z-10 p-6 flex flex-col justify-end h-full text-white">
@@ -471,7 +471,7 @@ export default function Home() {
               </div>
               <img
                 src={Reviews}
-                alt=""
+                alt="convertzip review"
                 className="pl-5 pb-5 shadow-md"
               />
             </div>
