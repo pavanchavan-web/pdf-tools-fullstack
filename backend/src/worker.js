@@ -7,18 +7,35 @@ import imageToPdf from "./jobs/imageToPdf.js";
 import imageConvert from "./jobs/imageConvert.js";
 import pdfImageExtract from "./jobs/pdfImageExtract.js";
 import imageCompress from "./jobs/imageCompress.js";
+import editPdf from "./jobs/edit-pdf.js"; // ✅ ADD THIS
 
 new Worker(
   "pdf-jobs",
   async (job) => {
     switch (job.name) {
-      case "split": return splitPdf(job.data);
-      case "compress": return compressPdf(job.data);
-      case "image-to-pdf": return imageToPdf(job.data);
-      case "image-convert": return imageConvert(job.data);
-      case "pdf-image-extract": return pdfImageExtract(job.data);
-      case "image-compress": return imageCompress(job.data);
-      default: throw new Error("Unknown job");
+      case "split":
+        return splitPdf(job.data);
+
+      case "compress":
+        return compressPdf(job.data);
+
+      case "image-to-pdf":
+        return imageToPdf(job.data);
+
+      case "image-convert":
+        return imageConvert(job.data);
+
+      case "pdf-image-extract":
+        return pdfImageExtract(job.data);
+
+      case "image-compress":
+        return imageCompress(job.data);
+
+      case "edit-pdf": // ✅ ADD THIS
+        return editPdf(job.data);
+
+      default:
+        throw new Error(`Unknown job: ${job.name}`);
     }
   },
   { connection }

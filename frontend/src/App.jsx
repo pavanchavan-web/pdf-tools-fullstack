@@ -33,6 +33,8 @@ import AboutUs from "./pages/AboutUs";
 import NotFound from "./pages/404";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost"
+import EditPdf from "./pages/EditPdf";
+import PdfToDocx from "./pages/PdfToDocx";
 
 export default function App() {
   const { notify } = useNotify();
@@ -82,6 +84,8 @@ export default function App() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/edit-pdf" element={<EditPdf />} />
+          <Route path="/pdf-to-docx" element={<PdfToDocx />} />
         </Routes>
       </Layout>
 

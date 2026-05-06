@@ -11,6 +11,7 @@ import sharp from "sharp";
 import { jobQueue } from "./queue.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import editPdfJob from "./jobs/edit-pdf.js";
 
 const exec = promisify(execCb);
 const app = express();
@@ -530,6 +531,129 @@ app.post("/api/image-compress", upload.array("files", 20), async (req, res) => {
     });
   }
 });
+
+/* ================= EDIT PDF ================= */
+app.post("/api/edit-pdf", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file?.path) {
+      return res.status(400).json({
+        error: true,
+        code: "NO_FILE_UPLOADED",
+        message: "Please upload a PDF file",
+      });
+    }
+
+    let edits = [];
+    if (req.body.edits) {
+      try {
+        edits =
+          typeof req.body.edits === "string"
+            ? JSON.parse(req.body.edits)
+            : req.body.edits;
+      } catch {
+        if (fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(400).json({
+          error: true,
+          code: "INVALID_EDITS",
+          message: "Invalid edits payload",
+        });
+      }
+    }
+
+    const pdfBytes = await jobQueue.add(async () =>
+      editPdfJob({
+        filePath: req.file.path,
+        edits,
+      })
+    );
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "attachment; filename=edited.pdf",
+    });
+
+    res.send(Buffer.from(pdfBytes));
+  } catch (err) {
+    console.error("Edit PDF error:", err);
+    res.status(500).json({
+      error: true,
+      code: "EDIT_PDF_FAILED",
+      message: err.message || "PDF editing failed",
+    });
+  }
+});
+
+
+/* ================= PDF → DOCX ================= */
+app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
+  try {
+    const zipBuffer = await jobQueue.add(async () => {
+      const zip = archiver("zip");
+      const chunks = [];
+      zip.on("data", (d) => chunks.push(d));
+
+      let successCount = 0;
+
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+
+        try {
+          const inputPath = file.path;
+          const outputDir = path.dirname(inputPath);
+
+          // 🔥 Convert PDF → DOCX
+          await exec(
+            `libreoffice --headless --nologo --convert-to docx "${inputPath}" --outdir "${outputDir}"`
+          );
+
+          const base = path.parse(file.originalname).name;
+          const outputPath = path.join(outputDir, `${base}.docx`);
+
+          const buffer = fs.readFileSync(outputPath);
+
+          // ✅ avoid duplicate names
+          const uniqueName = `${base}-${Date.now()}-${i}.docx`;
+
+          zip.append(buffer, { name: uniqueName });
+
+          fs.unlinkSync(outputPath);
+          fs.unlinkSync(inputPath);
+
+          successCount++;
+        } catch (err) {
+          console.error("DOCX convert error:", err.message);
+          try { fs.unlinkSync(file.path); } catch {}
+        }
+      }
+
+      if (successCount === 0) {
+        throw new Error("No valid PDF files converted");
+      }
+
+      await zip.finalize();
+      return Buffer.concat(chunks);
+    });
+
+    res.set({
+      "Content-Type": "application/zip",
+      "Content-Disposition": "attachment; filename=pdf-to-docx.zip",
+    });
+
+    res.send(zipBuffer);
+  } catch (err) {
+    console.error("PDF to DOCX error:", err);
+
+    res.status(500).json({
+      error: true,
+      code: "PDF_TO_DOCX_FAILED",
+      message: err.message || "Conversion failed",
+    });
+  }
+});
+
+
 
 
 /* ================= START ================= */

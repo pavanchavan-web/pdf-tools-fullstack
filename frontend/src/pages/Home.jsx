@@ -15,6 +15,8 @@ import Convert2GIF from "../assets/tools/16.svg";
 import Convert2SVG from "../assets/tools/15.svg";
 import Convert2WEBP from "../assets/tools/10.svg";
 import Convert2JPEG from "../assets/tools/11.svg";
+import ConvertDOCX from "../assets/tools/17.svg";
+import PDFedit from "../assets/tools/18.svg";
 import Reviews from "../assets/reviews.jpg";
 import BG from "../assets/bg.webp";
 
@@ -26,6 +28,24 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState("All");
 
   const tools = [
+    {
+      title: "Convert PDF to DOCX",
+      desc: "Convert PDF files to editable DOCX format online. Preserve layout, images, and formatting with our fast converter.",
+      category: "pdf",
+      keywords: "DOCX converter, convert to DOCX",
+      icon: ConvertDOCX,
+      path: "/pdf-to-docx",
+      categories: ["PDF Tools"],
+    },
+    {
+      title: "Edit PDFs",
+      desc: "Edit PDF files online with our easy-to-use editor. Add text, images, and annotations to your documents.",
+      category: "pdf",
+      keywords: "Edit PDFs, Edit PDF Online",
+      icon: PDFedit,
+      path: "/edit-pdf",
+      categories: ["PDF Tools"],
+    },
     {
       title: "Merge PDF",
       desc: "Merge PDF files online into one document in seconds. Fast, secure, and easy PDF combiner with no quality loss.",

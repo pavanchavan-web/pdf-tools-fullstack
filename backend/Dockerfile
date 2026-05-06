@@ -1,14 +1,19 @@
 FROM node:20-bullseye
 
-# Install system dependencies
+# Install system dependencies (PDF + Image + DOCX)
 RUN apt-get update && apt-get install -y \
     imagemagick \
     ghostscript \
     poppler-utils \
+    libreoffice \
+    libreoffice-writer \
+    libreoffice-core \
+    fonts-dejavu \
     && rm -rf /var/lib/apt/lists/*
 
-# VERY IMPORTANT: verify ImageMagick binary
+# Verify installations
 RUN which magick || which convert
+RUN which libreoffice
 
 WORKDIR /app
 
