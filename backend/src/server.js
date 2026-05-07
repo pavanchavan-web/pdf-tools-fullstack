@@ -263,7 +263,7 @@ app.post("/api/image-to-pdf", upload.array("files", 30), async (req, res) => {
           );
           try {
             fs.unlinkSync(file.path);
-          } catch {}
+          } catch { }
         }
       }
 
@@ -353,7 +353,7 @@ app.post("/api/image-convert", upload.array("files", 20), async (req, res) => {
           // 🧹 Always cleanup temp file
           try {
             fs.unlinkSync(file.path);
-          } catch {}
+          } catch { }
         }
       }
 
@@ -589,8 +589,24 @@ app.post("/api/edit-pdf", upload.single("file"), async (req, res) => {
 
 
 /* ================= PDF → DOCX ================= */
-app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
+// ================= PDF TO DOCX =================
+
+import { PassThrough } from "stream";
+
+/* ================= ENSURE UPLOADS FOLDER ================= */
+
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
+
+/* ================= ROUTE ================= */
+
+app.post(
+  "/api/pdf-to-docx",
+  upload.array("files", 5),
+  async (req, res) => {
     try {
+
       const zipBuffer = await jobQueue.add(async () => {
 
         /* ================= ZIP SETUP ================= */
@@ -611,7 +627,7 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
 
         let successCount = 0;
 
-        /* ================= FILE LOOP ================= */
+        /* ================= PROCESS FILES ================= */
 
         for (let i = 0; i < req.files.length; i++) {
 
@@ -631,41 +647,53 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
             /* ================= CONVERT ================= */
 
             await exec(
-              `libreoffice --headless --nologo --convert-to docx "${inputPath}" --outdir "${outputDir}"`
+              `libreoffice \
+              --headless \
+              --nologo \
+              --infilter="writer_pdf_import" \
+              --convert-to "docx:MS Word 2007 XML" \
+              "${inputPath}" \
+              --outdir "${outputDir}"`
             );
 
             /* ================= WAIT ================= */
 
             await new Promise((resolve) =>
-              setTimeout(resolve, 1500)
+              setTimeout(resolve, 3000)
             );
 
-            /* ================= FIND GENERATED DOCX ================= */
+            /* ================= DEBUG ================= */
+
+            const filesAfterConvert =
+              fs.readdirSync(outputDir);
+
+            console.log(
+              "FILES AFTER CONVERSION:",
+              filesAfterConvert
+            );
+
+            /* ================= FIND DOCX ================= */
 
             const baseName = path.parse(
               file.originalname
             ).name;
 
-            const files = fs.readdirSync(outputDir);
-
-            console.log(
-              "Files in output dir:",
-              files
-            );
-
-            const generatedDocx = files.find(
-              (f) =>
-                f.toLowerCase().endsWith(".docx") &&
-                (
-                  f.startsWith(baseName) ||
-                  f.includes(baseName)
-                )
-            );
+            const generatedDocx =
+              filesAfterConvert.find(
+                (f) =>
+                  f.toLowerCase().endsWith(".docx") &&
+                  (
+                    f.startsWith(baseName) ||
+                    f.includes(baseName)
+                  )
+              );
 
             if (!generatedDocx) {
+
               throw new Error(
                 `DOCX file not generated for ${file.originalname}`
               );
+
             }
 
             const outputPath = path.join(
@@ -678,13 +706,13 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
               outputPath
             );
 
-            /* ================= READ FILE ================= */
+            /* ================= READ DOCX ================= */
 
             const buffer = fs.readFileSync(
               outputPath
             );
 
-            /* ================= ZIP FILE NAME ================= */
+            /* ================= ZIP NAME ================= */
 
             const uniqueName =
               `${baseName}-${Date.now()}-${i}.docx`;
@@ -753,7 +781,7 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
           }
         }
 
-        /* ================= VALIDATION ================= */
+        /* ================= VALIDATE ================= */
 
         if (successCount === 0) {
 
