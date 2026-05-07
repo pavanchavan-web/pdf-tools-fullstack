@@ -18,10 +18,6 @@ import editPdfJob from "./jobs/edit-pdf.js";
 const exec = promisify(execCb);
 const app = express();
 
-if (!fs.existsSync("uploads")) {
-  fs.mkdirSync("uploads");
-}
-
 /* TRUST PROXY (REQUIRED FOR RENDER / VERCEL) */
 app.set("trust proxy", 1);
 
@@ -593,6 +589,9 @@ app.post("/api/edit-pdf", upload.single("file"), async (req, res) => {
 
 
 /* ================= PDF → DOCX ================= */
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
 app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
     try {
 
@@ -661,23 +660,28 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
               filesAfterConvert
             );
 
-            /* ================= FIND DOCX ================= */
+            /* ================= FIND GENERATED DOCX ================= */
 
-            const baseName = path.parse(
-              file.originalname
-            ).name;
-
-            const generatedDocx =
-              filesAfterConvert.find(
-                (f) =>
-                  f.toLowerCase().endsWith(".docx") &&
-                  (
-                    f.startsWith(baseName) ||
-                    f.includes(baseName)
+            const docxFiles = filesAfterConvert
+              .filter((f) =>
+                f.toLowerCase().endsWith(".docx")
+              )
+              .map((fileName) => ({
+                fileName,
+                fullPath: path.join(
+                  outputDir,
+                  fileName
+                ),
+                time: fs.statSync(
+                  path.join(
+                    outputDir,
+                    fileName
                   )
-              );
+                ).mtimeMs,
+              }))
+              .sort((a, b) => b.time - a.time);
 
-            if (!generatedDocx) {
+            if (docxFiles.length === 0) {
 
               throw new Error(
                 `DOCX file not generated for ${file.originalname}`
@@ -685,10 +689,11 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
 
             }
 
-            const outputPath = path.join(
-              outputDir,
-              generatedDocx
-            );
+            const generatedDocx =
+              docxFiles[0].fileName;
+
+            const outputPath =
+              docxFiles[0].fullPath;
 
             console.log(
               "Generated DOCX:",
@@ -703,8 +708,13 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
 
             /* ================= ZIP NAME ================= */
 
+            const originalBaseName =
+              path.parse(
+                file.originalname
+              ).name;
+
             const uniqueName =
-              `${baseName}-${Date.now()}-${i}.docx`;
+              `${originalBaseName}-${Date.now()}-${i}.docx`;
 
             archive.append(buffer, {
               name: uniqueName,
@@ -721,7 +731,9 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
 
             try {
 
-              if (fs.existsSync(outputPath)) {
+              if (
+                fs.existsSync(outputPath)
+              ) {
                 fs.unlinkSync(outputPath);
               }
 
@@ -736,7 +748,9 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
 
             try {
 
-              if (fs.existsSync(inputPath)) {
+              if (
+                fs.existsSync(inputPath)
+              ) {
                 fs.unlinkSync(inputPath);
               }
 
@@ -770,7 +784,7 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
           }
         }
 
-        /* ================= VALIDATE ================= */
+        /* ================= VALIDATION ================= */
 
         if (successCount === 0) {
 
