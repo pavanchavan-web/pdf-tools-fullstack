@@ -18,6 +18,10 @@ import editPdfJob from "./jobs/edit-pdf.js";
 const exec = promisify(execCb);
 const app = express();
 
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
+
 /* TRUST PROXY (REQUIRED FOR RENDER / VERCEL) */
 app.set("trust proxy", 1);
 
@@ -589,22 +593,7 @@ app.post("/api/edit-pdf", upload.single("file"), async (req, res) => {
 
 
 /* ================= PDF → DOCX ================= */
-// ================= PDF TO DOCX =================
-
-import { PassThrough } from "stream";
-
-/* ================= ENSURE UPLOADS FOLDER ================= */
-
-if (!fs.existsSync("uploads")) {
-  fs.mkdirSync("uploads");
-}
-
-/* ================= ROUTE ================= */
-
-app.post(
-  "/api/pdf-to-docx",
-  upload.array("files", 5),
-  async (req, res) => {
+app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
     try {
 
       const zipBuffer = await jobQueue.add(async () => {
