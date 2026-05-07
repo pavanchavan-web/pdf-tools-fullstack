@@ -865,6 +865,242 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
   }
 );
 
+app.post("/api/docx-to-pdf", upload.array("files", 5), async (req, res) => {
+
+    try {
+
+      const zipBuffer =
+        await jobQueue.add(async () => {
+
+          const archive = archiver(
+            "zip",
+            {
+              zlib: { level: 9 },
+            }
+          );
+
+          const stream =
+            new PassThrough();
+
+          const chunks = [];
+
+          stream.on(
+            "data",
+            (chunk) => {
+              chunks.push(chunk);
+            }
+          );
+
+          archive.pipe(stream);
+
+          let successCount = 0;
+
+          for (
+            let i = 0;
+            i < req.files.length;
+            i++
+          ) {
+
+            const file =
+              req.files[i];
+
+            try {
+
+              const inputPath =
+                file.path;
+
+              const outputDir =
+                path.dirname(inputPath);
+
+              await exec(
+                `libreoffice \
+                --headless \
+                --convert-to pdf \
+                "${inputPath}" \
+                --outdir "${outputDir}"`
+              );
+
+              await new Promise(
+                (resolve) =>
+                  setTimeout(
+                    resolve,
+                    2000
+                  )
+              );
+
+              const filesAfterConvert =
+                fs.readdirSync(
+                  outputDir
+                );
+
+              const pdfFiles =
+                filesAfterConvert
+                  .filter((f) =>
+                    f
+                      .toLowerCase()
+                      .endsWith(".pdf")
+                  )
+                  .map(
+                    (fileName) => ({
+                      fileName,
+                      fullPath:
+                        path.join(
+                          outputDir,
+                          fileName
+                        ),
+                      time:
+                        fs.statSync(
+                          path.join(
+                            outputDir,
+                            fileName
+                          )
+                        ).mtimeMs,
+                    })
+                  )
+                  .sort(
+                    (a, b) =>
+                      b.time - a.time
+                  );
+
+              if (
+                pdfFiles.length === 0
+              ) {
+
+                throw new Error(
+                  `PDF not generated for ${file.originalname}`
+                );
+
+              }
+
+              const outputPath =
+                pdfFiles[0].fullPath;
+
+              const buffer =
+                fs.readFileSync(
+                  outputPath
+                );
+
+              const originalBaseName =
+                path.parse(
+                  file.originalname
+                ).name;
+
+              const uniqueName =
+                `${originalBaseName}-${Date.now()}-${i}.pdf`;
+
+              archive.append(buffer, {
+                name: uniqueName,
+              });
+
+              successCount++;
+
+              try {
+
+                if (
+                  fs.existsSync(
+                    outputPath
+                  )
+                ) {
+                  fs.unlinkSync(
+                    outputPath
+                  );
+                }
+
+              } catch {}
+
+              try {
+
+                if (
+                  fs.existsSync(
+                    inputPath
+                  )
+                ) {
+                  fs.unlinkSync(
+                    inputPath
+                  );
+                }
+
+              } catch {}
+
+            } catch (err) {
+
+              console.error(
+                "DOCX to PDF error:",
+                err
+              );
+
+            }
+          }
+
+          if (successCount === 0) {
+
+            throw new Error(
+              "No valid DOCX files converted"
+            );
+
+          }
+
+          const zipPromise =
+            new Promise(
+              (resolve, reject) => {
+
+                stream.on(
+                  "end",
+                  () => {
+                    resolve(
+                      Buffer.concat(
+                        chunks
+                      )
+                    );
+                  }
+                );
+
+                stream.on(
+                  "error",
+                  reject
+                );
+
+                archive.on(
+                  "error",
+                  reject
+                );
+
+              }
+            );
+
+          await archive.finalize();
+
+          return await zipPromise;
+
+        });
+
+      res.set({
+        "Content-Type":
+          "application/zip",
+        "Content-Disposition":
+          "attachment; filename=docx-to-pdf.zip",
+      });
+
+      res.send(zipBuffer);
+
+    } catch (err) {
+
+      console.error(
+        "DOCX TO PDF ERROR:",
+        err
+      );
+
+      res.status(500).json({
+        error: true,
+        message:
+          err.message ||
+          "Conversion failed",
+      });
+
+    }
+  }
+);
+
 
 /* ================= START ================= */
 app.listen(5000, () => {

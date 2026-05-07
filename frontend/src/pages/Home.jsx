@@ -17,6 +17,7 @@ import Convert2WEBP from "../assets/tools/10.svg";
 import Convert2JPEG from "../assets/tools/11.svg";
 import ConvertDOCX from "../assets/tools/17.svg";
 import PDFedit from "../assets/tools/18.svg";
+import DOCXtoPDF from "../assets/tools/19.svg";
 import Reviews from "../assets/reviews.jpg";
 import BG from "../assets/bg.webp";
 
@@ -36,6 +37,17 @@ export default function Home() {
       icon: ConvertDOCX,
       path: "/pdf-to-docx",
       categories: ["PDF Tools"],
+      badge: "New",
+    },
+    {
+      title: "Convert DOCX to PDF",
+      desc: "Convert DOCX files to PDF format online. Preserve layout, images, and formatting with our fast converter.",
+      category: "pdf",
+      keywords: "PDF converter, convert to PDF",
+      icon: DOCXtoPDF,
+      path: "/docx-to-pdf",
+      categories: ["PDF Tools"],
+      badge: "New",
     },
     {
       title: "Edit PDFs",
@@ -45,6 +57,7 @@ export default function Home() {
       icon: PDFedit,
       path: "/edit-pdf",
       categories: ["PDF Tools"],
+      badge: "New",
     },
     {
       title: "Merge PDF",
@@ -368,18 +381,36 @@ export default function Home() {
                 key={tool.title}
                 to={tool.path}
                 className="
-            group relative rounded-2xl bg-white border
-            p-5 transition-all duration-300
-            hover:-translate-y-1 hover:shadow-xl
-            hover:border-indigo-500 shadow-soft
-          "
+        group relative rounded-2xl bg-white border
+        p-5 transition-all duration-300
+        hover:-translate-y-1 hover:shadow-xl
+        hover:border-indigo-500 shadow-soft
+      "
               >
+
+                {/* NEW Badge */}
+                {tool.badge && (
+                  <span
+                    className="
+            absolute top-3 right-3
+            bg-red-500 text-white
+            text-[10px] font-semibold
+            px-2 py-1 rounded-full
+            leading-none
+          "
+                  >
+                    {tool.badge}
+                  </span>
+                )}
+
                 {/* Icon */}
-                <div className="
-                    h-14 w-14 mb-4 rounded-xl
-                    bg-indigo-50 flex items-center justify-center
-                    group-hover:bg-indigo-100 transition
-                  ">
+                <div
+                  className="
+          h-14 w-14 mb-4 rounded-xl
+          bg-indigo-50 flex items-center justify-center
+          group-hover:bg-indigo-100 transition
+        "
+                >
                   <img
                     src={tool.icon}
                     alt={tool.title}
@@ -391,6 +422,7 @@ export default function Home() {
                 <h5 className="text-left font-semibold mb-1">
                   {tool.title}
                 </h5>
+
                 <p className="tool-para text-left">
                   {tool.desc}
                 </p>

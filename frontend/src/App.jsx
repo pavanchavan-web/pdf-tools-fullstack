@@ -35,6 +35,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost"
 import EditPdf from "./pages/EditPdf";
 import PdfToDocx from "./pages/PdfToDocx";
+import DocxToPdf from "./pages/DocxToPdf";
 
 export default function App() {
   const { notify } = useNotify();
@@ -86,6 +87,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
           <Route path="/edit-pdf" element={<EditPdf />} />
           <Route path="/pdf-to-docx" element={<PdfToDocx />} />
+          <Route path="/docx-to-pdf" element={<DocxToPdf />} />
         </Routes>
       </Layout>
 

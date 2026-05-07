@@ -1,11 +1,12 @@
 import "../index.css";
+
 import { useState, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import JSZip from "jszip";
+
 import ToolLayout from "../components/ToolLayout";
 import UploadBox from "../components/UploadBox";
 import ProcessingOverlay from "../components/ProcessingOverlay";
-import PdfPagePreview from "../components/PdfPagePreview";
 
 import useProgress from "../hooks/useProgress";
 import { postFile } from "../utils/api";
@@ -14,7 +15,7 @@ import { useNotify } from "../context/NotificationContext";
 const MAX_FILES = 5;
 const MAX_SIZE_MB = 500;
 
-export default function PdfToDocx() {
+export default function DocxToPdf() {
 
   /* ================= STATE ================= */
 
@@ -23,7 +24,7 @@ export default function PdfToDocx() {
   const [zipBlob, setZipBlob] =
     useState(null);
 
-  const [docxFiles, setDocxFiles] =
+  const [pdfFiles, setPdfFiles] =
     useState([]);
 
   const [loading, setLoading] =
@@ -46,33 +47,35 @@ export default function PdfToDocx() {
 
   const addFiles = (files) => {
 
-    const pdfs = files.filter(
-      (f) => f.type === "application/pdf"
+    const validFiles = files.filter(
+      (f) =>
+        f.name.endsWith(".docx") ||
+        f.name.endsWith(".doc")
     );
 
-    if (pdfs.length !== files.length) {
+    if (validFiles.length !== files.length) {
 
       notify(
         "warning",
-        "Only PDF files are accepted"
+        "Only DOC/DOCX files are accepted"
       );
 
     }
 
     if (
-      items.length + pdfs.length >
+      items.length + validFiles.length >
       MAX_FILES
     ) {
 
       notify(
         "warning",
-        `Maximum ${MAX_FILES} PDFs allowed`
+        `Maximum ${MAX_FILES} DOCX files allowed`
       );
 
       return;
     }
 
-    const oversized = pdfs.find(
+    const oversized = validFiles.find(
       (f) =>
         f.size >
         MAX_SIZE_MB * 1024 * 1024
@@ -90,7 +93,7 @@ export default function PdfToDocx() {
 
     setItems((prev) => [
       ...prev,
-      ...pdfs,
+      ...validFiles,
     ]);
 
     if (fileInputRef.current) {
@@ -116,13 +119,13 @@ export default function PdfToDocx() {
 
       notify(
         "warning",
-        "Please upload at least one PDF"
+        "Please upload at least one DOCX"
       );
 
       return;
     }
 
-    start("Converting PDFs to DOCX...");
+    start("Converting DOCX to PDF...");
 
     setLoading(true);
 
@@ -135,7 +138,7 @@ export default function PdfToDocx() {
       });
 
       const blob = await postFile(
-        "pdf-to-docx",
+        "docx-to-pdf",
         formData
       );
 
@@ -160,7 +163,7 @@ export default function PdfToDocx() {
               const url =
                 URL.createObjectURL(
                   new Blob([fileData], {
-                    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    type: "application/pdf",
                   })
                 );
 
@@ -175,13 +178,13 @@ export default function PdfToDocx() {
 
       setZipBlob(blob);
 
-      setDocxFiles(extracted);
+      setPdfFiles(extracted);
 
       finish();
 
       notify(
         "success",
-        `${extracted.length} file(s) converted successfully!`
+        `${extracted.length} PDF file(s) converted successfully!`
       );
 
     } catch (err) {
@@ -206,7 +209,7 @@ export default function PdfToDocx() {
 
   const reset = () => {
 
-    docxFiles.forEach((f) => {
+    pdfFiles.forEach((f) => {
       URL.revokeObjectURL(f.url);
     });
 
@@ -214,7 +217,7 @@ export default function PdfToDocx() {
 
     setZipBlob(null);
 
-    setDocxFiles([]);
+    setPdfFiles([]);
 
   };
 
@@ -222,30 +225,24 @@ export default function PdfToDocx() {
 
   return (
     <>
-      {/* ================= SEO ================= */}
-
       <Helmet>
 
         <title>
-          Convert PDF to DOCX Online –
-          Free PDF to Word | ConvertZip
+          Convert DOCX to PDF Online |
+          ConvertZip
         </title>
 
         <meta
           name="description"
-          content="Convert PDF to editable Word DOCX online for free."
+          content="Convert Word DOCX files into PDF online for free."
         />
 
       </Helmet>
 
-      {/* ================= LAYOUT ================= */}
-
       <ToolLayout
-        title="PDF to DOCX Converter"
-        description="Convert PDF files into editable Word DOCX documents online for free."
+        title="DOCX to PDF Converter"
+        description="Convert Word DOCX documents into PDF files online for free."
       >
-
-        {/* ================= PROCESSING ================= */}
 
         <ProcessingOverlay
           visible={visible}
@@ -260,9 +257,9 @@ export default function PdfToDocx() {
           !visible && (
 
             <UploadBox
-              accept="application/pdf"
+              accept=".doc,.docx"
               multiple
-              maxText={`Max ${MAX_FILES} PDFs · Up to ${MAX_SIZE_MB}MB each`}
+              maxText={`Max ${MAX_FILES} DOCX files · Up to ${MAX_SIZE_MB}MB each`}
               onFiles={addFiles}
             />
 
@@ -286,13 +283,13 @@ export default function PdfToDocx() {
                   }
                   className="text-blue-600 font-medium hover:text-blue-700"
                 >
-                  ➕ Add more PDFs
+                  ➕ Add more DOCX
                 </button>
 
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="application/pdf"
+                  accept=".doc,.docx"
                   multiple
                   hidden
                   onChange={(e) =>
@@ -303,7 +300,7 @@ export default function PdfToDocx() {
                 />
 
                 <span className="text-sm text-gray-500">
-                  {items.length} / {MAX_FILES} PDFs
+                  {items.length} / {MAX_FILES} files
                 </span>
 
               </div>
@@ -321,8 +318,8 @@ export default function PdfToDocx() {
 
                     <div className="flex items-center gap-3">
 
-                      <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center text-red-600 font-bold text-xs">
-                        PDF
+                      <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">
+                        DOCX
                       </div>
 
                       <div>
@@ -331,11 +328,11 @@ export default function PdfToDocx() {
                           {file.name}
                         </div>
 
-                        <div className="text-xs text-red-500 text-left">
+                        <div className="text-xs text-blue-500 text-left">
                           {(file.size / 1024).toFixed(
                             1
                           )}{" "}
-                          KB → DOCX
+                          KB → PDF
                         </div>
 
                       </div>
@@ -364,8 +361,7 @@ export default function PdfToDocx() {
                   {items.length} file
                   {items.length > 1
                     ? "s"
-                    : ""}{" "}
-                  ready
+                    : ""} ready
                 </span>
 
                 <button
@@ -375,7 +371,7 @@ export default function PdfToDocx() {
                 >
                   {loading
                     ? "Converting..."
-                    : "Convert to DOCX →"}
+                    : "Convert to PDF →"}
                 </button>
 
               </div>
@@ -386,78 +382,73 @@ export default function PdfToDocx() {
         {/* ================= SCREEN 3 ================= */}
 
         {zipBlob &&
-          docxFiles.length > 0 && (
+          pdfFiles.length > 0 && (
 
             <>
               <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
 
-                {/* Header */}
-
                 <div className="p-4 border-b bg-green-50 flex items-center gap-2">
 
                   <span className="text-green-700 font-semibold">
-                    ✅ {docxFiles.length} file
-                    {docxFiles.length > 1
+                    ✅ {pdfFiles.length} file
+                    {pdfFiles.length > 1
                       ? "s"
-                      : ""}{" "}
-                    converted successfully
+                      : ""} converted successfully
                   </span>
 
                 </div>
 
-                {/* Result Cards */}
+                {pdfFiles.map((pdf, i) => (
 
-                {docxFiles.map((docx, i) => {
+                  <div
+                    key={i}
+                    className="flex items-center justify-between gap-4 px-4 py-5 border-b last:border-b-0"
+                  >
 
-                  return (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between gap-4 px-4 py-5 border-b last:border-b-0"
-                    >
+                    <div className="flex items-center gap-4 min-w-0">
 
-                      {/* LEFT */}
-                      <div className="flex items-center gap-4 min-w-0">
+                      {/* PDF Card */}
 
-                        {/* DOCX Preview Card */}
-                        <div className="flex flex-col items-center justify-center flex-shrink-0">
+                      <div className="flex flex-col items-center justify-center flex-shrink-0">
 
-                          {/* DOCX Icon */}
-                          <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow">
-                            DOCX
-                          </div>
-
-                          <div className="text-[10px] text-gray-500 font-medium">
-                            Word File
-                          </div>
-
+                        <div className="w-12 h-12 rounded-lg bg-red-600 flex items-center justify-center text-white font-bold text-sm shadow">
+                          PDF
                         </div>
 
-                        {/* File Info */}
-                        <div className="min-w-0">
-
-                          <div className="font-semibold text-sm truncate max-w-[260px]">
-                            {docx.name}
-                          </div>
-
-                          <div className="text-xs text-gray-500 mt-1 text-left">
-                            Converted Word Document
-                          </div>
-
+                        <div className="text-[10px] text-gray-500 font-medium">
+                          PDF File
                         </div>
+
                       </div>
 
-                      {/* Download Button */}
-                      <a
-                        href={docx.url}
-                        download={docx.name}
-                        className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
-                      >
-                        ⬇ Download
-                      </a>
+                      {/* File Info */}
 
+                      <div className="min-w-0">
+
+                        <div className="font-semibold text-sm truncate max-w-[260px]">
+                          {pdf.name}
+                        </div>
+
+                        <div className="text-xs text-gray-500 mt-1 text-left">
+                          Converted PDF Document
+                        </div>
+
+                      </div>
                     </div>
-                  );
-                })}
+
+                    {/* Download */}
+
+                    <a
+                      href={pdf.url}
+                      download={pdf.name}
+                      className="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+                    >
+                      ⬇ Download
+                    </a>
+
+                  </div>
+
+                ))}
               </div>
 
               {/* Bottom Buttons */}
@@ -468,7 +459,7 @@ export default function PdfToDocx() {
                   href={URL.createObjectURL(
                     zipBlob
                   )}
-                  download="pdf-to-docx.zip"
+                  download="docx-to-pdf.zip"
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                 >
                   ⬇️ Download ZIP
@@ -478,7 +469,7 @@ export default function PdfToDocx() {
                   onClick={reset}
                   className="border border-gray-300 hover:border-gray-400 px-6 py-3 rounded-lg font-medium transition-colors"
                 >
-                  🔄 Convert More PDFs
+                  🔄 Convert More DOCX
                 </button>
 
               </div>
