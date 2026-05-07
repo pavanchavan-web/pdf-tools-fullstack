@@ -6,6 +6,8 @@ import path from "path";
 import archiver from "archiver";
 import { exec as execCb } from "child_process";
 import { promisify } from "util";
+import { PassThrough } from "stream";
+
 import { PDFDocument } from "pdf-lib";
 import sharp from "sharp";
 import { jobQueue } from "./queue.js";
@@ -34,14 +36,6 @@ app.use(
     contentSecurityPolicy: false,
   })
 );
-
-const archiver = require("archiver");
-const fs = require("fs");
-const path = require("path");
-const { PassThrough } = require("stream");
-
-const util = require("util");
-const exec = util.promisify(require("child_process").exec);
 
 // Rate limiting (API protection)
 const apiLimiter = rateLimit({
@@ -606,6 +600,7 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
         });
 
         const stream = new PassThrough();
+
         const chunks = [];
 
         stream.on("data", (chunk) => {
@@ -616,7 +611,7 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
 
         let successCount = 0;
 
-        /* ================= PROCESS FILES ================= */
+        /* ================= FILE LOOP ================= */
 
         for (let i = 0; i < req.files.length; i++) {
 
@@ -625,6 +620,7 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
           try {
 
             const inputPath = file.path;
+
             const outputDir = path.dirname(inputPath);
 
             console.log(
@@ -644,7 +640,7 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
               setTimeout(resolve, 1500)
             );
 
-            /* ================= FIND OUTPUT FILE ================= */
+            /* ================= FIND GENERATED DOCX ================= */
 
             const baseName = path.parse(
               file.originalname
@@ -688,7 +684,7 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
               outputPath
             );
 
-            /* ================= UNIQUE ZIP NAME ================= */
+            /* ================= ZIP FILE NAME ================= */
 
             const uniqueName =
               `${baseName}-${Date.now()}-${i}.docx`;
@@ -707,25 +703,33 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
             /* ================= CLEANUP ================= */
 
             try {
+
               if (fs.existsSync(outputPath)) {
                 fs.unlinkSync(outputPath);
               }
+
             } catch (cleanupErr) {
+
               console.error(
                 "DOCX cleanup failed:",
                 cleanupErr.message
               );
+
             }
 
             try {
+
               if (fs.existsSync(inputPath)) {
                 fs.unlinkSync(inputPath);
               }
+
             } catch (cleanupErr) {
+
               console.error(
                 "PDF cleanup failed:",
                 cleanupErr.message
               );
+
             }
 
           } catch (err) {
@@ -736,12 +740,14 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
             );
 
             try {
+
               if (
                 file.path &&
                 fs.existsSync(file.path)
               ) {
                 fs.unlinkSync(file.path);
               }
+
             } catch {}
 
           }
@@ -750,9 +756,11 @@ app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
         /* ================= VALIDATION ================= */
 
         if (successCount === 0) {
+
           throw new Error(
             "No valid PDF files converted"
           );
+
         }
 
         /* ================= FINALIZE ZIP ================= */
