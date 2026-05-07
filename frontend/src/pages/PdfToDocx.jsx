@@ -1,9 +1,7 @@
-// src/pages/PdfToDocx.jsx
-
+import "../index.css";
 import { useState, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import JSZip from "jszip";
-
 import ToolLayout from "../components/ToolLayout";
 import UploadBox from "../components/UploadBox";
 import ProcessingOverlay from "../components/ProcessingOverlay";
@@ -14,7 +12,7 @@ import { postFile } from "../utils/api";
 import { useNotify } from "../context/NotificationContext";
 
 const MAX_FILES = 5;
-const MAX_SIZE_MB = 50;
+const MAX_SIZE_MB = 500;
 
 export default function PdfToDocx() {
 
@@ -411,9 +409,6 @@ export default function PdfToDocx() {
 
                 {docxFiles.map((docx, i) => {
 
-                  const originalPdf =
-                    items[i];
-
                   return (
                     <div
                       key={i}
@@ -421,47 +416,37 @@ export default function PdfToDocx() {
                     >
 
                       {/* LEFT */}
-
                       <div className="flex items-center gap-4 min-w-0">
 
-                        {/* Preview */}
+                        {/* DOCX Preview Card */}
+                        <div className="w-20 h-28 rounded-xl border bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center shadow-sm flex-shrink-0">
 
-                        <div className="w-20 h-28 bg-gray-100 rounded-lg overflow-hidden border flex-shrink-0">
+                          {/* DOCX Icon */}
+                          <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow">
+                            DOCX
+                          </div>
 
-                          {originalPdf ? (
-
-                            <PdfPagePreview
-                              file={originalPdf}
-                              singlePage
-                            />
-
-                          ) : (
-
-                            <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
-                              DOCX
-                            </div>
-
-                          )}
+                          <div className="mt-3 text-[10px] text-gray-500 font-medium">
+                            Word File
+                          </div>
 
                         </div>
 
-                        {/* Info */}
-
+                        {/* File Info */}
                         <div className="min-w-0">
 
-                          <div className="font-semibold text-sm truncate">
+                          <div className="font-semibold text-sm truncate max-w-[260px]">
                             {docx.name}
                           </div>
 
                           <div className="text-xs text-gray-500 mt-1">
-                            Word Document
+                            Converted Word Document
                           </div>
 
                         </div>
                       </div>
 
-                      {/* Download */}
-
+                      {/* Download Button */}
                       <a
                         href={docx.url}
                         download={docx.name}
