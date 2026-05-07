@@ -35,6 +35,14 @@ app.use(
   })
 );
 
+const archiver = require("archiver");
+const fs = require("fs");
+const path = require("path");
+const { PassThrough } = require("stream");
+
+const util = require("util");
+const exec = util.promisify(require("child_process").exec);
+
 // Rate limiting (API protection)
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -588,72 +596,214 @@ app.post("/api/edit-pdf", upload.single("file"), async (req, res) => {
 
 /* ================= PDF → DOCX ================= */
 app.post("/api/pdf-to-docx", upload.array("files", 5), async (req, res) => {
-  try {
-    const zipBuffer = await jobQueue.add(async () => {
-      const zip = archiver("zip");
-      const chunks = [];
-      zip.on("data", (d) => chunks.push(d));
+    try {
+      const zipBuffer = await jobQueue.add(async () => {
 
-      let successCount = 0;
+        /* ================= ZIP SETUP ================= */
 
-      for (let i = 0; i < req.files.length; i++) {
-        const file = req.files[i];
+        const archive = archiver("zip", {
+          zlib: { level: 9 },
+        });
 
-        try {
-          const inputPath = file.path;
-          const outputDir = path.dirname(inputPath);
+        const stream = new PassThrough();
+        const chunks = [];
 
-          // 🔥 Convert PDF → DOCX
-          await exec(
-            `libreoffice --headless --nologo --convert-to docx "${inputPath}" --outdir "${outputDir}"`
-          );
+        stream.on("data", (chunk) => {
+          chunks.push(chunk);
+        });
 
-          const base = path.parse(file.originalname).name;
-          const outputPath = path.join(outputDir, `${base}.docx`);
+        archive.pipe(stream);
 
-          const buffer = fs.readFileSync(outputPath);
+        let successCount = 0;
 
-          // ✅ avoid duplicate names
-          const uniqueName = `${base}-${Date.now()}-${i}.docx`;
+        /* ================= PROCESS FILES ================= */
 
-          zip.append(buffer, { name: uniqueName });
+        for (let i = 0; i < req.files.length; i++) {
 
-          fs.unlinkSync(outputPath);
-          fs.unlinkSync(inputPath);
+          const file = req.files[i];
 
-          successCount++;
-        } catch (err) {
-          console.error("DOCX convert error:", err.message);
-          try { fs.unlinkSync(file.path); } catch {}
+          try {
+
+            const inputPath = file.path;
+            const outputDir = path.dirname(inputPath);
+
+            console.log(
+              "Starting conversion:",
+              file.originalname
+            );
+
+            /* ================= CONVERT ================= */
+
+            await exec(
+              `libreoffice --headless --nologo --convert-to docx "${inputPath}" --outdir "${outputDir}"`
+            );
+
+            /* ================= WAIT ================= */
+
+            await new Promise((resolve) =>
+              setTimeout(resolve, 1500)
+            );
+
+            /* ================= FIND OUTPUT FILE ================= */
+
+            const baseName = path.parse(
+              file.originalname
+            ).name;
+
+            const files = fs.readdirSync(outputDir);
+
+            console.log(
+              "Files in output dir:",
+              files
+            );
+
+            const generatedDocx = files.find(
+              (f) =>
+                f.toLowerCase().endsWith(".docx") &&
+                (
+                  f.startsWith(baseName) ||
+                  f.includes(baseName)
+                )
+            );
+
+            if (!generatedDocx) {
+              throw new Error(
+                `DOCX file not generated for ${file.originalname}`
+              );
+            }
+
+            const outputPath = path.join(
+              outputDir,
+              generatedDocx
+            );
+
+            console.log(
+              "Generated DOCX:",
+              outputPath
+            );
+
+            /* ================= READ FILE ================= */
+
+            const buffer = fs.readFileSync(
+              outputPath
+            );
+
+            /* ================= UNIQUE ZIP NAME ================= */
+
+            const uniqueName =
+              `${baseName}-${Date.now()}-${i}.docx`;
+
+            archive.append(buffer, {
+              name: uniqueName,
+            });
+
+            successCount++;
+
+            console.log(
+              "Added to ZIP:",
+              uniqueName
+            );
+
+            /* ================= CLEANUP ================= */
+
+            try {
+              if (fs.existsSync(outputPath)) {
+                fs.unlinkSync(outputPath);
+              }
+            } catch (cleanupErr) {
+              console.error(
+                "DOCX cleanup failed:",
+                cleanupErr.message
+              );
+            }
+
+            try {
+              if (fs.existsSync(inputPath)) {
+                fs.unlinkSync(inputPath);
+              }
+            } catch (cleanupErr) {
+              console.error(
+                "PDF cleanup failed:",
+                cleanupErr.message
+              );
+            }
+
+          } catch (err) {
+
+            console.error(
+              "DOCX convert error:",
+              err
+            );
+
+            try {
+              if (
+                file.path &&
+                fs.existsSync(file.path)
+              ) {
+                fs.unlinkSync(file.path);
+              }
+            } catch {}
+
+          }
         }
-      }
 
-      if (successCount === 0) {
-        throw new Error("No valid PDF files converted");
-      }
+        /* ================= VALIDATION ================= */
 
-      await zip.finalize();
-      return Buffer.concat(chunks);
-    });
+        if (successCount === 0) {
+          throw new Error(
+            "No valid PDF files converted"
+          );
+        }
 
-    res.set({
-      "Content-Type": "application/zip",
-      "Content-Disposition": "attachment; filename=pdf-to-docx.zip",
-    });
+        /* ================= FINALIZE ZIP ================= */
 
-    res.send(zipBuffer);
-  } catch (err) {
-    console.error("PDF to DOCX error:", err);
+        await archive.finalize();
 
-    res.status(500).json({
-      error: true,
-      code: "PDF_TO_DOCX_FAILED",
-      message: err.message || "Conversion failed",
-    });
+        await new Promise((resolve, reject) => {
+
+          stream.on("end", resolve);
+
+          stream.on("error", reject);
+
+          archive.on("error", reject);
+
+        });
+
+        console.log(
+          `ZIP created successfully with ${successCount} files`
+        );
+
+        return Buffer.concat(chunks);
+
+      });
+
+      /* ================= RESPONSE ================= */
+
+      res.set({
+        "Content-Type": "application/zip",
+        "Content-Disposition":
+          "attachment; filename=pdf-to-docx.zip",
+      });
+
+      res.send(zipBuffer);
+
+    } catch (err) {
+
+      console.error(
+        "PDF to DOCX error:",
+        err
+      );
+
+      res.status(500).json({
+        error: true,
+        code: "PDF_TO_DOCX_FAILED",
+        message:
+          err.message || "Conversion failed",
+      });
+
+    }
   }
-});
-
-
+);
 
 
 /* ================= START ================= */
