@@ -307,6 +307,12 @@ nav a:hover {
   margin-top: 30px;
 }
 
+.docx-size-text{
+  text-align: left;
+  font-weight: 500;
+  color: #4f46e5;
+}
+
 @media (max-width:768px) {
   h1,
   h1 span {
