@@ -327,7 +327,7 @@ export default function PdfToDocx() {
 
                       <div>
 
-                        <div className="font-medium text-sm truncate max-w-[240px]">
+                        <div className="font-medium text-sm truncate max-w-[240px] text-left">
                           {file.name}
                         </div>
 

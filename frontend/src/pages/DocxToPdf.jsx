@@ -324,7 +324,7 @@ export default function DocxToPdf() {
 
                       <div>
 
-                        <div className="font-medium text-sm truncate max-w-[240px]">
+                        <div className="font-medium text-sm truncate max-w-[240px] text-left">
                           {file.name}
                         </div>
 
@@ -443,7 +443,7 @@ export default function DocxToPdf() {
                       download={pdf.name}
                       className="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
                     >
-                      ⬇ Download
+                      Download
                     </a>
 
                   </div>
