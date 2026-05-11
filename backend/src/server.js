@@ -84,6 +84,7 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 },
 });
 
+
 /* ================= HELPERS ================= */
 
 // BLOCK Raster → SVG
@@ -534,59 +535,196 @@ app.post("/api/image-compress", upload.array("files", 20), async (req, res) => {
   }
 });
 
+
 /* ================= EDIT PDF ================= */
 app.post("/api/edit-pdf", upload.single("file"), async (req, res) => {
-  try {
-    if (!req.file?.path) {
-      return res.status(400).json({
-        error: true,
-        code: "NO_FILE_UPLOADED",
-        message: "Please upload a PDF file",
-      });
-    }
+    try {
+      // =====================================================
+      // VALIDATE FILE
+      // =====================================================
 
-    let edits = [];
-    if (req.body.edits) {
-      try {
-        edits =
-          typeof req.body.edits === "string"
-            ? JSON.parse(req.body.edits)
-            : req.body.edits;
-      } catch {
-        if (fs.existsSync(req.file.path)) {
-          fs.unlinkSync(req.file.path);
-        }
+      if (!req.file?.path) {
         return res.status(400).json({
           error: true,
-          code: "INVALID_EDITS",
-          message: "Invalid edits payload",
+          code: "NO_FILE_UPLOADED",
+          message: "Please upload a PDF file",
         });
       }
+
+      // =====================================================
+      // VALIDATE PDF
+      // =====================================================
+
+      if (
+        req.file.mimetype !==
+        "application/pdf"
+      ) {
+        if (
+          fs.existsSync(req.file.path)
+        ) {
+          fs.unlinkSync(req.file.path);
+        }
+
+        return res.status(400).json({
+          error: true,
+          code: "INVALID_FILE_TYPE",
+          message:
+            "Only PDF files are allowed",
+        });
+      }
+
+      // =====================================================
+      // PARSE EDITS
+      // =====================================================
+
+      let edits = [];
+
+      if (req.body.edits) {
+        try {
+          edits =
+            typeof req.body.edits ===
+            "string"
+              ? JSON.parse(
+                  req.body.edits
+                )
+              : req.body.edits;
+
+          // Ensure array
+          if (!Array.isArray(edits)) {
+            throw new Error(
+              "Edits must be an array"
+            );
+          }
+        } catch (parseError) {
+          console.error(
+            "Edit parse error:",
+            parseError
+          );
+
+          if (
+            fs.existsSync(req.file.path)
+          ) {
+            fs.unlinkSync(req.file.path);
+          }
+
+          return res.status(400).json({
+            error: true,
+            code: "INVALID_EDITS",
+            message:
+              "Invalid edits payload",
+          });
+        }
+      }
+
+      // =====================================================
+      // PROCESS PDF
+      // =====================================================
+
+      let pdfBytes;
+
+      try {
+        pdfBytes = await jobQueue.add(
+          async () =>
+            await editPdfJob({
+              filePath: req.file.path,
+              edits,
+            })
+        );
+      } catch (jobError) {
+        console.error(
+          "PDF job failed:",
+          jobError
+        );
+
+        return res.status(500).json({
+          error: true,
+          code: "PDF_PROCESSING_FAILED",
+          message:
+            jobError.message ||
+            "Failed to process PDF",
+        });
+      }
+
+      // =====================================================
+      // VALIDATE OUTPUT
+      // =====================================================
+
+      if (
+        !pdfBytes ||
+        !(pdfBytes instanceof Uint8Array) &&
+          !Buffer.isBuffer(pdfBytes)
+      ) {
+        return res.status(500).json({
+          error: true,
+          code: "INVALID_PDF_OUTPUT",
+          message:
+            "Failed to generate edited PDF",
+        });
+      }
+
+      // =====================================================
+      // SEND PDF
+      // =====================================================
+
+      res.set({
+        "Content-Type":
+          "application/pdf",
+
+        "Content-Disposition":
+          'attachment; filename="edited.pdf"',
+
+        "Content-Length":
+          pdfBytes.length,
+
+        "Cache-Control":
+          "no-store, no-cache, must-revalidate, proxy-revalidate",
+
+        Pragma: "no-cache",
+
+        Expires: "0",
+      });
+
+      return res.send(
+        Buffer.from(pdfBytes)
+      );
+    } catch (err) {
+      console.error(
+        "Edit PDF error:",
+        err
+      );
+
+      // =====================================================
+      // CLEANUP TEMP FILE
+      // =====================================================
+
+      try {
+        if (
+          req.file?.path &&
+          fs.existsSync(req.file.path)
+        ) {
+          fs.unlinkSync(req.file.path);
+        }
+      } catch (cleanupErr) {
+        console.error(
+          "Cleanup failed:",
+          cleanupErr
+        );
+      }
+
+      // =====================================================
+      // ERROR RESPONSE
+      // =====================================================
+
+      return res.status(500).json({
+        error: true,
+        code: "EDIT_PDF_FAILED",
+        message:
+          err.message ||
+          "PDF editing failed",
+      });
     }
-
-    const pdfBytes = await jobQueue.add(async () =>
-      editPdfJob({
-        filePath: req.file.path,
-        edits,
-      })
-    );
-
-    res.set({
-      "Content-Type": "application/pdf",
-      "Content-Disposition": "attachment; filename=edited.pdf",
-    });
-
-    res.send(Buffer.from(pdfBytes));
-  } catch (err) {
-    console.error("Edit PDF error:", err);
-    res.status(500).json({
-      error: true,
-      code: "EDIT_PDF_FAILED",
-      message: err.message || "PDF editing failed",
-    });
   }
-});
-
+);
 
 /* ================= PDF → DOCX ================= */
 if (!fs.existsSync("uploads")) {

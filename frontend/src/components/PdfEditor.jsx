@@ -30,6 +30,14 @@ const FALLBACK_FONTS = [
   "Poppins",
   "Montserrat",
   "Open Sans",
+  "Inter",
+  "Lato",
+  "Nunito",
+  "Oswald",
+  "Raleway",
+  "Ubuntu",
+  "Merriweather",
+  "Playfair Display",
 ];
 const GOOGLE_FONT_NAMES = new Set(
   FALLBACK_FONTS.filter((fontName) => !["Helvetica", "Arial"].includes(fontName))
@@ -60,18 +68,35 @@ const SELECTION_HANDLES = [
 let textMeasureContext = null;
 
 function loadGoogleFont(fontName) {
-  if (!fontName || !GOOGLE_FONT_NAMES.has(fontName)) return;
+  if (!fontName) return;
 
-  const id = `gf-${fontName.replace(/\s+/g, "-")}`;
-  if (document.getElementById(id)) return;
+  const normalized =
+    normalizeFontFamily(fontName);
 
-  const link = document.createElement("link");
-  link.id = id;
-  link.rel = "stylesheet";
-  link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(
+  const id = `gf-${normalized.replace(
     /\s+/g,
-    "+"
-  )}:wght@300;400;500;600;700&display=swap`;
+    "-"
+  )}`;
+
+  if (document.getElementById(id)) {
+    return;
+  }
+
+  const weights =
+    "300;400;500;600;700;800";
+
+  const link =
+    document.createElement("link");
+
+  link.id = id;
+
+  link.rel = "stylesheet";
+
+  link.href =
+    `https://fonts.googleapis.com/css2?family=${normalized.replace(
+      /\s+/g,
+      "+"
+    )}:wght@${weights}&display=swap`;
 
   document.head.appendChild(link);
 }
@@ -729,6 +754,7 @@ export default function PdfEditor({ file, onChangeFile }) {
           });
 
           styledBlocks.forEach((block) => {
+            loadGoogleFont(block.fontFamily);
             detectedFonts.set(block.fontFamilyRaw, {
               value: block.fontFamilyRaw,
               label: block.fontFamily,
@@ -919,11 +945,11 @@ export default function PdfEditor({ file, onChangeFile }) {
       if (normalizedPatch.fontFamily || normalizedPatch.fontFamilyRaw) {
         normalizedPatch.renderFontFamily = buildRenderFontFamily(
           normalizedPatch.fontFamilyRaw ||
-            currentPatch.fontFamilyRaw ||
-            originalBlock.fontFamilyRaw,
+          currentPatch.fontFamilyRaw ||
+          originalBlock.fontFamilyRaw,
           normalizedPatch.fontFamily ||
-            currentPatch.fontFamily ||
-            originalBlock.fontFamily
+          currentPatch.fontFamily ||
+          originalBlock.fontFamily
         );
       }
 
@@ -979,6 +1005,7 @@ export default function PdfEditor({ file, onChangeFile }) {
 
   async function download() {
     setIsSaving(true);
+
     setError("");
 
     try {
@@ -987,88 +1014,200 @@ export default function PdfEditor({ file, onChangeFile }) {
       pages.forEach((page) => {
         page.blocks.forEach((block) => {
           if (editsById[block.id]) {
-            const current = getCurrentBlock(block);
+            const current =
+              getCurrentBlock(block);
+
             edits.push({
               id: block.id,
+
               page: current.page,
+
               text: current.text,
+
               x: current.left,
+
               y: current.top,
-              width: current.renderWidth,
-              height: current.renderHeight,
-              fontSize: current.fontSize,
-              lineHeight: current.lineHeight,
-              fontFamily: current.fontFamily,
-              fontFamilyRaw: current.fontFamilyRaw,
-              fontWeight: current.fontWeight,
-              fontStyle: current.fontStyle,
-              underline: current.underline,
-              textAlign: current.textAlign,
-              color: current.color,
-              link: current.link,
-              scale: current.scale,
+
+              width:
+                current.renderWidth,
+
+              height:
+                current.renderHeight,
+
+              fontSize:
+                current.fontSize,
+
+              lineHeight:
+                current.lineHeight,
+
+              fontFamily:
+                current.fontFamily,
+
+              fontFamilyRaw:
+                current.fontFamilyRaw,
+
+              fontWeight:
+                current.fontWeight,
+
+              fontStyle:
+                current.fontStyle,
+
+              underline:
+                current.underline,
+
+              textAlign:
+                current.textAlign,
+
+              color:
+                current.color,
+
+              link:
+                current.link,
+
+              scale:
+                current.scale,
             });
           }
 
           block.words.forEach((word) => {
-            if (!editsById[word.id]) return;
+            if (!editsById[word.id]) {
+              return;
+            }
 
-            const currentWord = getCurrentBlock(word);
+            const currentWord =
+              getCurrentBlock(word);
+
             edits.push({
               id: word.id,
-              page: currentWord.page,
-              text: currentWord.text,
-              x: currentWord.left,
-              y: currentWord.top,
-              width: currentWord.renderWidth,
-              height: currentWord.renderHeight,
-              fontSize: currentWord.fontSize,
-              lineHeight: currentWord.lineHeight,
-              fontFamily: currentWord.fontFamily,
-              fontFamilyRaw: currentWord.fontFamilyRaw,
-              fontWeight: currentWord.fontWeight,
-              fontStyle: currentWord.fontStyle,
-              underline: currentWord.underline,
-              textAlign: currentWord.textAlign,
-              color: currentWord.color,
-              link: currentWord.link,
-              scale: currentWord.scale,
+
+              page:
+                currentWord.page,
+
+              text:
+                currentWord.text,
+
+              x:
+                currentWord.left,
+
+              y:
+                currentWord.top,
+
+              width:
+                currentWord.renderWidth,
+
+              height:
+                currentWord.renderHeight,
+
+              fontSize:
+                currentWord.fontSize,
+
+              lineHeight:
+                currentWord.lineHeight,
+
+              fontFamily:
+                currentWord.fontFamily,
+
+              fontFamilyRaw:
+                currentWord.fontFamilyRaw,
+
+              fontWeight:
+                currentWord.fontWeight,
+
+              fontStyle:
+                currentWord.fontStyle,
+
+              underline:
+                currentWord.underline,
+
+              textAlign:
+                currentWord.textAlign,
+
+              color:
+                currentWord.color,
+
+              link:
+                currentWord.link,
+
+              scale:
+                currentWord.scale,
             });
           });
         });
       });
 
-      const form = new FormData();
-      form.append("file", file);
-      form.append("edits", JSON.stringify(edits));
+      const formData = new FormData();
 
-      const response = await fetch("/api/edit-pdf", {
-        method: "POST",
-        body: form,
-      });
+      formData.append("file", file);
+
+      formData.append(
+        "edits",
+        JSON.stringify(edits)
+      );
+
+      const response = await fetch(
+        "http://localhost:5000/api/edit-pdf",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
-        let message = "Failed to create edited PDF";
+        let message =
+          "Failed to create edited PDF";
 
         try {
-          const payload = await response.json();
-          message = payload.message || message;
-        } catch {
-          // Ignore JSON parsing failure and use the fallback message.
-        }
+          const payload =
+            await response.json();
+
+          message =
+            payload.message ||
+            message;
+        } catch { }
 
         throw new Error(message);
       }
 
-      const blob = await response.blob();
-      const link = document.createElement("a");
-      const objectUrl = URL.createObjectURL(blob);
+      const blob =
+        await response.blob();
+
+      if (!blob.size) {
+        throw new Error(
+          "Generated PDF is empty"
+        );
+      }
+
+      const objectUrl =
+        URL.createObjectURL(blob);
+
+      const link =
+        document.createElement("a");
+
       link.href = objectUrl;
-      link.download = "edited.pdf";
+
+      link.download =
+        "edited.pdf";
+
+      document.body.appendChild(
+        link
+      );
+
       link.click();
-      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+
+      link.remove();
+
+      setTimeout(() => {
+        URL.revokeObjectURL(
+          objectUrl
+        );
+      }, 2000);
     } catch (err) {
-      setError(err.message || "Failed to create edited PDF");
+      console.error(err);
+
+      setError(
+        err.message ||
+        "Failed to create edited PDF"
+      );
     } finally {
       setIsSaving(false);
     }
@@ -1078,8 +1217,8 @@ export default function PdfEditor({ file, onChangeFile }) {
     <div className="h-full flex flex-col bg-[#f3f5f8]">
       <div className="px-5 py-3 border-b border-slate-200 bg-white flex items-center justify-between">
         <div>
-          <div className="font-medium text-slate-900">Edit PDF</div>
-          <div className="text-sm text-slate-500">
+          <div className="font-medium text-red-600 ">Edit PDF</div>
+          <div className="text-sm text-slate-900">
             Click any text on the page to edit it in place.
           </div>
         </div>
@@ -1130,7 +1269,7 @@ export default function PdfEditor({ file, onChangeFile }) {
 
           <button
             onClick={onChangeFile}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            className="rounded-lg border border-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-800 bg-red-600"
           >
             Change PDF
           </button>
@@ -1212,46 +1351,46 @@ export default function PdfEditor({ file, onChangeFile }) {
                   />
 
                   {page.blocks.map((block) => {
-                  const currentParagraph = getCurrentBlock(block);
-                  const selectedWord = block.words.find((word) => word.id === selectedId);
-                  const selectedWordState = selectedWord
-                    ? getCurrentBlock(selectedWord)
-                    : null;
-                  const paragraphIsActive = selectedId === block.id;
-                  const activeSelection = selectedWordState || (paragraphIsActive ? currentParagraph : null);
-                  const paragraphHasEdit = Boolean(editsById[block.id]);
-                  const editedWords = block.words
-                    .filter((word) => Boolean(editsById[word.id]) && word.id !== selectedId)
-                    .map((word) => getCurrentBlock(word));
+                    const currentParagraph = getCurrentBlock(block);
+                    const selectedWord = block.words.find((word) => word.id === selectedId);
+                    const selectedWordState = selectedWord
+                      ? getCurrentBlock(selectedWord)
+                      : null;
+                    const paragraphIsActive = selectedId === block.id;
+                    const activeSelection = selectedWordState || (paragraphIsActive ? currentParagraph : null);
+                    const paragraphHasEdit = Boolean(editsById[block.id]);
+                    const editedWords = block.words
+                      .filter((word) => Boolean(editsById[word.id]) && word.id !== selectedId)
+                      .map((word) => getCurrentBlock(word));
 
-                  const buildOverlayStyle = (targetBlock) => ({
-                    position: "absolute",
-                    left: targetBlock.left,
-                    top: targetBlock.top,
-                    width: targetBlock.renderWidth,
-                    height: targetBlock.renderHeight,
-                    fontSize: `${targetBlock.fontSize}px`,
-                    lineHeight: `${targetBlock.lineHeight}px`,
-                    fontFamily: targetBlock.renderFontFamily,
-                    fontWeight: targetBlock.fontWeight,
-                    fontStyle: targetBlock.fontStyle,
-                    textDecoration: targetBlock.underline ? "underline" : "none",
-                    color: targetBlock.color,
-                    background: "#ffffff",
-                    textAlign: targetBlock.textAlign,
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                    overflow: "hidden",
-                    padding: "0 2px",
-                    margin: 0,
-                    display: "block",
-                    boxSizing: "border-box",
-                    zIndex: 20,
-                    borderRadius: "2px",
-                  });
+                    const buildOverlayStyle = (targetBlock) => ({
+                      position: "absolute",
+                      left: targetBlock.left,
+                      top: targetBlock.top,
+                      width: targetBlock.renderWidth,
+                      height: targetBlock.renderHeight,
+                      fontSize: `${targetBlock.fontSize}px`,
+                      lineHeight: `${targetBlock.lineHeight}px`,
+                      fontFamily: targetBlock.renderFontFamily,
+                      fontWeight: targetBlock.fontWeight,
+                      fontStyle: targetBlock.fontStyle,
+                      textDecoration: targetBlock.underline ? "underline" : "none",
+                      color: targetBlock.color,
+                      background: "#ffffff",
+                      textAlign: targetBlock.textAlign,
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
+                      overflow: "hidden",
+                      padding: "0 2px",
+                      margin: 0,
+                      display: "block",
+                      boxSizing: "border-box",
+                      zIndex: 20,
+                      borderRadius: "2px",
+                    });
 
-                  const selectionBoxStyle = activeSelection
-                    ? {
+                    const selectionBoxStyle = activeSelection
+                      ? {
                         position: "absolute",
                         left: Math.max(0, activeSelection.left),
                         top: Math.max(0, activeSelection.top),
@@ -1266,177 +1405,177 @@ export default function PdfEditor({ file, onChangeFile }) {
                         zIndex: 30,
                         pointerEvents: "none",
                       }
-                    : null;
+                      : null;
 
-                  const selectBlock = (event) => {
-                    event.stopPropagation();
+                    const selectBlock = (event) => {
+                      event.stopPropagation();
 
-                    const { x, y } = getScaledPointerPosition(event, event.currentTarget);
-                    const absoluteX = block.left + x;
-                    const absoluteY = block.top + y;
-                    const targetWord = findWordAtPoint(block, absoluteX, absoluteY);
+                      const { x, y } = getScaledPointerPosition(event, event.currentTarget);
+                      const absoluteX = block.left + x;
+                      const absoluteY = block.top + y;
+                      const targetWord = findWordAtPoint(block, absoluteX, absoluteY);
 
-                    if (targetWord) {
-                      setSelectedId(targetWord.id);
-                      loadGoogleFont(targetWord.fontFamily);
-                      return;
-                    }
+                      if (targetWord) {
+                        setSelectedId(targetWord.id);
+                        loadGoogleFont(targetWord.fontFamily);
+                        return;
+                      }
 
-                    setSelectedId(block.id);
-                    loadGoogleFont(currentParagraph.fontFamily);
-                  };
+                      setSelectedId(block.id);
+                      loadGoogleFont(currentParagraph.fontFamily);
+                    };
 
-                  return (
-                    <div key={block.id}>
-                      {activeSelection && (
-                        <div style={selectionBoxStyle}>
-                          <div className="absolute inset-0 rounded-[2px] border border-dashed border-sky-500 bg-white/10" />
+                    return (
+                      <div key={block.id}>
+                        {activeSelection && (
+                          <div style={selectionBoxStyle}>
+                            <div className="absolute inset-0 rounded-[2px] border border-dashed border-sky-500 bg-white/10" />
 
-                          {SELECTION_HANDLES.map((handleClassName) => (
-                            <span
-                              key={handleClassName}
-                              className={`absolute h-3 w-3 rounded-full bg-sky-500 shadow-[0_0_0_2px_rgba(255,255,255,0.95)] ${handleClassName}`}
-                            />
-                          ))}
+                            {SELECTION_HANDLES.map((handleClassName) => (
+                              <span
+                                key={handleClassName}
+                                className={`absolute h-3 w-3 rounded-full bg-sky-500 shadow-[0_0_0_2px_rgba(255,255,255,0.95)] ${handleClassName}`}
+                              />
+                            ))}
 
-                          <div
-                            className="absolute top-full mt-3 flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 shadow-lg pointer-events-auto"
-                            style={{
-                              left: Math.max(0, Math.min(
-                                activeSelection.renderWidth / 2 - 40,
-                                page.width - activeSelection.left - 88
-                              )),
-                            }}
-                          >
-                            <button
-                              type="button"
-                              onMouseDown={(event) => {
-                                event.stopPropagation();
-                                void copySelectedText();
+                            <div
+                              className="absolute top-full mt-3 flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 shadow-lg pointer-events-auto"
+                              style={{
+                                left: Math.max(0, Math.min(
+                                  activeSelection.renderWidth / 2 - 40,
+                                  page.width - activeSelection.left - 88
+                                )),
                               }}
-                              className="rounded-md p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
-                              title="Copy text"
                             >
-                              <Copy className="h-4 w-4" />
-                            </button>
+                              <button
+                                type="button"
+                                onMouseDown={(event) => {
+                                  event.stopPropagation();
+                                  void copySelectedText();
+                                }}
+                                className="rounded-md p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                                title="Copy text"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </button>
 
-                            <button
-                              type="button"
-                              onMouseDown={(event) => {
-                                event.stopPropagation();
-                                removeSelectedText();
-                              }}
-                              className="rounded-md p-2 text-slate-500 transition hover:bg-slate-100 hover:text-red-600"
-                              title="Delete text"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                              <button
+                                type="button"
+                                onMouseDown={(event) => {
+                                  event.stopPropagation();
+                                  removeSelectedText();
+                                }}
+                                className="rounded-md p-2 text-slate-500 transition hover:bg-slate-100 hover:text-red-600"
+                                title="Delete text"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      <button
-                        type="button"
-                        aria-label={`Edit text: ${block.originalText}`}
-                        title={block.originalText}
-                        className="absolute rounded-sm hover:ring-1 hover:ring-sky-300"
-                        style={{
-                          left: block.left,
-                          top: block.top,
-                          width: Math.max(block.width, 16),
-                          height: Math.max(block.height, 20),
-                          background: "transparent",
-                          border: "none",
-                          cursor: "text",
-                          zIndex: 10,
-                        }}
-                        onMouseDown={(event) => event.stopPropagation()}
-                        onClick={selectBlock}
-                      />
-
-                      {paragraphHasEdit && !paragraphIsActive && !selectedWordState && (
                         <button
                           type="button"
+                          aria-label={`Edit text: ${block.originalText}`}
+                          title={block.originalText}
+                          className="absolute rounded-sm hover:ring-1 hover:ring-sky-300"
+                          style={{
+                            left: block.left,
+                            top: block.top,
+                            width: Math.max(block.width, 16),
+                            height: Math.max(block.height, 20),
+                            background: "transparent",
+                            border: "none",
+                            cursor: "text",
+                            zIndex: 10,
+                          }}
                           onMouseDown={(event) => event.stopPropagation()}
                           onClick={selectBlock}
-                          style={{
-                            ...buildOverlayStyle(currentParagraph),
-                            border: "none",
-                            appearance: "none",
-                            cursor: "text",
-                          }}
-                        >
-                          {currentParagraph.text}
-                        </button>
-                      )}
+                        />
 
-                      {editedWords.map((word) => (
-                        <button
-                          key={word.id}
-                          type="button"
-                          onMouseDown={(event) => event.stopPropagation()}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setSelectedId(word.id);
-                            loadGoogleFont(word.fontFamily);
-                          }}
-                          style={{
-                            ...buildOverlayStyle(word),
-                            border: "none",
-                            appearance: "none",
-                            cursor: "text",
-                          }}
-                        >
-                          {word.text}
-                        </button>
-                      ))}
-
-                      {activeSelection &&
-                        (selectedId === activeSelection.id ? (
-                          <textarea
-                            ref={(element) => {
-                              activeEditorRef.current = element;
-                            }}
-                            value={activeSelection.text}
-                            spellCheck={false}
-                            onChange={(event) =>
-                              updateSelectedBlock({ text: event.target.value })
-                            }
-                            onMouseDown={(event) => event.stopPropagation()}
-                            onKeyDown={(event) => {
-                              if (event.key === "Escape") {
-                                setSelectedId(null);
-                              }
-                            }}
-                            style={{
-                              ...buildOverlayStyle(activeSelection),
-                              border: "none",
-                              outline: "none",
-                              resize: "none",
-                              boxShadow: "none",
-                            }}
-                          />
-                        ) : (
+                        {paragraphHasEdit && !paragraphIsActive && !selectedWordState && (
                           <button
                             type="button"
                             onMouseDown={(event) => event.stopPropagation()}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              setSelectedId(activeSelection.id);
-                              loadGoogleFont(activeSelection.fontFamily);
-                            }}
+                            onClick={selectBlock}
                             style={{
-                              ...buildOverlayStyle(activeSelection),
+                              ...buildOverlayStyle(currentParagraph),
                               border: "none",
                               appearance: "none",
                               cursor: "text",
                             }}
                           >
-                            {activeSelection.text}
+                            {currentParagraph.text}
+                          </button>
+                        )}
+
+                        {editedWords.map((word) => (
+                          <button
+                            key={word.id}
+                            type="button"
+                            onMouseDown={(event) => event.stopPropagation()}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setSelectedId(word.id);
+                              loadGoogleFont(word.fontFamily);
+                            }}
+                            style={{
+                              ...buildOverlayStyle(word),
+                              border: "none",
+                              appearance: "none",
+                              cursor: "text",
+                            }}
+                          >
+                            {word.text}
                           </button>
                         ))}
-                    </div>
-                  );
+
+                        {activeSelection &&
+                          (selectedId === activeSelection.id ? (
+                            <textarea
+                              ref={(element) => {
+                                activeEditorRef.current = element;
+                              }}
+                              value={activeSelection.text}
+                              spellCheck={false}
+                              onChange={(event) =>
+                                updateSelectedBlock({ text: event.target.value })
+                              }
+                              onMouseDown={(event) => event.stopPropagation()}
+                              onKeyDown={(event) => {
+                                if (event.key === "Escape") {
+                                  setSelectedId(null);
+                                }
+                              }}
+                              style={{
+                                ...buildOverlayStyle(activeSelection),
+                                border: "none",
+                                outline: "none",
+                                resize: "none",
+                                boxShadow: "none",
+                              }}
+                            />
+                          ) : (
+                            <button
+                              type="button"
+                              onMouseDown={(event) => event.stopPropagation()}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setSelectedId(activeSelection.id);
+                                loadGoogleFont(activeSelection.fontFamily);
+                              }}
+                              style={{
+                                ...buildOverlayStyle(activeSelection),
+                                border: "none",
+                                appearance: "none",
+                                cursor: "text",
+                              }}
+                            >
+                              {activeSelection.text}
+                            </button>
+                          ))}
+                      </div>
+                    );
                   })}
                 </div>
               </div>
@@ -1535,11 +1674,10 @@ export default function PdfEditor({ file, onChangeFile }) {
                               : "bold",
                         })
                       }
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg border transition ${
-                        selectedBlockState.fontWeight === "bold"
-                          ? "border-sky-500 bg-sky-50 text-sky-600"
-                          : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50"
-                      }`}
+                      className={`flex h-10 w-10 items-center justify-center rounded-lg border transition ${selectedBlockState.fontWeight === "bold"
+                        ? "border-sky-500 bg-sky-50 text-sky-600"
+                        : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50"
+                        }`}
                       title="Bold"
                     >
                       <Bold className="h-4 w-4" />
@@ -1555,11 +1693,10 @@ export default function PdfEditor({ file, onChangeFile }) {
                               : "italic",
                         })
                       }
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg border transition ${
-                        selectedBlockState.fontStyle === "italic"
-                          ? "border-sky-500 bg-sky-50 text-sky-600"
-                          : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50"
-                      }`}
+                      className={`flex h-10 w-10 items-center justify-center rounded-lg border transition ${selectedBlockState.fontStyle === "italic"
+                        ? "border-sky-500 bg-sky-50 text-sky-600"
+                        : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50"
+                        }`}
                       title="Italic"
                     >
                       <Italic className="h-4 w-4" />
@@ -1572,11 +1709,10 @@ export default function PdfEditor({ file, onChangeFile }) {
                           underline: !selectedBlockState.underline,
                         })
                       }
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg border transition ${
-                        selectedBlockState.underline
-                          ? "border-sky-500 bg-sky-50 text-sky-600"
-                          : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50"
-                      }`}
+                      className={`flex h-10 w-10 items-center justify-center rounded-lg border transition ${selectedBlockState.underline
+                        ? "border-sky-500 bg-sky-50 text-sky-600"
+                        : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50"
+                        }`}
                       title="Underline"
                     >
                       <Underline className="h-4 w-4" />
@@ -1605,11 +1741,10 @@ export default function PdfEditor({ file, onChangeFile }) {
                           key={item.value}
                           type="button"
                           onClick={() => updateSelectedBlock({ textAlign: item.value })}
-                          className={`flex h-10 w-10 items-center justify-center rounded-lg border transition ${
-                            selectedBlockState.textAlign === item.value
-                              ? "border-sky-500 bg-sky-50 text-sky-600"
-                              : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50"
-                          }`}
+                          className={`flex h-10 w-10 items-center justify-center rounded-lg border transition ${selectedBlockState.textAlign === item.value
+                            ? "border-sky-500 bg-sky-50 text-sky-600"
+                            : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50"
+                            }`}
                           title={item.label}
                         >
                           <Icon className="h-4 w-4" />
@@ -1620,11 +1755,10 @@ export default function PdfEditor({ file, onChangeFile }) {
                     <button
                       type="button"
                       onClick={promptForLink}
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg border transition ${
-                        selectedBlockState.link
-                          ? "border-sky-500 bg-sky-50 text-sky-600"
-                          : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50"
-                      }`}
+                      className={`flex h-10 w-10 items-center justify-center rounded-lg border transition ${selectedBlockState.link
+                        ? "border-sky-500 bg-sky-50 text-sky-600"
+                        : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50"
+                        }`}
                       title={selectedBlockState.link || "Add link"}
                     >
                       <Link2 className="h-4 w-4" />
